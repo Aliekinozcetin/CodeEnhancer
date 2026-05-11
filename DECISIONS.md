@@ -68,13 +68,13 @@ _(Şu an bekleyen karar yok)_
 
 ## Kesinleşmiş Kararlar (Devam)
 
-### #005 — Model Seçimi (Revize)
-**Tarih:** 2026-05-11 → Revize: 2026-05-11
+### #005 — Model Seçimi (Final)
+**Tarih:** 2026-05-11 → Final revize: 2026-05-11
 **Durum:** ✅ Kesinleşti
-**Karar:** Tüm modeller ücretsiz Gemini ailesiyle seçildi. Deney matrisi: **Gemini 1.5 Flash**, **Gemini 2.0 Flash**, **Gemini 1.5 Pro**. OpenAI API'si kapsam dışı bırakıldı; ileride gerekirse eklenir.
-**Gerekçe:** OpenAI API'si ücretli, Gemini ücretsiz katmanı (günde 1500 istek) tüm mid-phase ve final deneyleri için yeterli. Farklı Gemini nesilleri (1.5 vs 2.0) arasındaki karşılaştırma da akademik olarak anlamlı.
-**Reddedilen Alternatifler:** GPT-4o / GPT-4o-mini (ücretli), Claude Haiku (ücretli), Llama local (GPU gereksinimi).
-**Etkisi:** `code_generator.py`'e yalnızca Gemini client entegre edilecek; OpenAI client opsiyonel kalacak. Deney klasörleri güncellendi.
+**Karar:** Deney matrisi: **Gemini 1.5 Flash** (Google API, ücretsiz), **Gemini 2.0 Flash** (Google API, ücretsiz), **Llama 3.1 8B via Ollama** (local, ücretsiz). OpenAI API'si kapsam dışı bırakıldı; ileride gerekirse eklenir.
+**Gerekçe:** Tüm modeller ücretsiz. Gemini 1.5 Flash vs 2.0 Flash → nesil karşılaştırması. Llama 3.1 8B (Ollama, local) → cloud vs local karşılaştırması. M4 çip + 16 GB RAM ile Ollama Metal desteğiyle hızlı çalışır. Üç farklı paradigma akademik katkıyı güçlendiriyor.
+**Reddedilen Alternatifler:** GPT-4o / GPT-4o-mini (ücretli), Claude Haiku (ücretli), Gemini 1.5 Pro (Gemini 2.0 Flash daha güncel ve ücretsiz).
+**Etkisi:** `code_generator.py`'e Gemini client + Ollama REST API client entegre edilecek. Deney klasörleri güncellendi.
 
 ---
 

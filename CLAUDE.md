@@ -26,13 +26,13 @@ Baseline olarak alınan **CodeEnhancer** (JAIST Cybersecurity Research Lab) fram
 
 ## Deney Matrisi (Kesinleşti — 2026-05-11)
 
-|                       | Zero-shot | Few-shot | Chain-of-Thought |
-|-----------------------|-----------|----------|------------------|
-| Gemini 1.5 Flash      | planlı    | planlı   | planlı           |
-| Gemini 2.0 Flash      | planlı    | planlı   | planlı           |
-| Gemini 1.5 Pro        | planlı    | planlı   | planlı           |
+|                          | Zero-shot | Few-shot | Chain-of-Thought |
+|--------------------------|-----------|----------|------------------|
+| Gemini 1.5 Flash         | planlı    | planlı   | planlı           |
+| Gemini 2.0 Flash         | planlı    | planlı   | planlı           |
+| Llama 3.1 8B (Ollama)    | planlı    | planlı   | planlı           |
 
-> Tüm modeller ücretsiz Google Generative AI API üzerinden çalışır. OpenAI kapsam dışı bırakıldı (ücretli). Bkz. DECISIONS.md #005.
+> Gemini modelleri ücretsiz Google Generative AI API. Llama 3.1 8B Ollama ile local çalışır (M4 + 16GB). OpenAI kapsam dışı. Bkz. DECISIONS.md #005.
 
 ---
 
@@ -56,9 +56,9 @@ CodeEnhancer/                  ← fork'lanan orijinal repo
 │   ├── gemini20flash_zeroshot/
 │   ├── gemini20flash_fewshot/
 │   ├── gemini20flash_cot/
-│   ├── gemini15pro_zeroshot/
-│   ├── gemini15pro_fewshot/
-│   └── gemini15pro_cot/
+│   ├── llama31_8b_zeroshot/
+│   ├── llama31_8b_fewshot/
+│   └── llama31_8b_cot/
 │
 ├── prompts/                   ← [YENİ] Prompt şablonları
 │   ├── zero_shot.py

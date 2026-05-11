@@ -49,8 +49,9 @@
 ### Model Entegrasyonları
 - [ ] Gemini 1.5 Flash entegrasyonu (`google-generativeai` client)
 - [ ] Gemini 2.0 Flash entegrasyonu
-- [ ] Gemini 1.5 Pro entegrasyonu
-- [ ] Her model için API çağrısını izole et, ileride kolayca yeni model eklenebilsin (OpenAI opsiyonel)
+- [ ] Llama 3.1 8B entegrasyonu (Ollama REST API — `http://localhost:11434`)
+- [ ] Ollama kurulumu: `brew install ollama && ollama pull llama3.1`
+- [ ] Her model için API çağrısını izole et, ileride kolayca yeni model eklenebilsin
 
 ### Deney Çalıştırma
 - [ ] 15 prompt → mid-phase için
