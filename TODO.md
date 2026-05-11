@@ -7,66 +7,28 @@
 ## 🚨 ACİL — Mid-Phase Report (3 gün içinde)
 
 - [ ] GitHub fork URL'sini CLAUDE.md'ye ekle
-- [ ] Repo'yu local'de çalıştır (Python env kur, bağımlılıkları yükle)
-- ✅ `.env` dosyası oluşturuldu (şablon hazır — gerçek API key'leri sen gireceksin)
-- [ ] `.env` dosyasına gerçek OPENAI_API_KEY ve GOOGLE_API_KEY değerlerini gir
-- ✅ `data/llmseceval/` klasörü oluşturuldu, LLMSecEval veri seti indirildi (150 prompt, 18 CWE)
-- ✅ 3 model × 3 strateji = 9 deney, 135 kod dosyası üretildi
-- ✅ `code_validator.py` Ollama'ya uyarlandı, test edildi (Bandit + Pylint + LLM döngüsü)
-- [ ] Tüm deneylerin validasyonunu çalıştır (`python3 code_validator.py`)
-- [ ] İki modelin sonuçlarını karşılaştıran basit bir tablo oluştur
+- [ ] Repo'yu local'de çalıştır: `source .venv/bin/activate`
+- [ ] Tüm deneylerin validasyonunu çalıştır: `python3 code_validator.py`
+- [ ] Validation bittikten sonra: `python3 analysis/compare_results.py && python3 analysis/visualize.py`
 - [ ] Mid-phase report taslağını yaz (bölüm 1, 2, 3, 4, 5)
-- [ ] GitHub'a en az 3-4 anlamlı commit at (commit geçmişi hoca tarafından izleniyor)
+- [ ] GitHub'a düzenli commit at (commit geçmişi hoca tarafından izleniyor)
 
 ---
 
-## 📁 Altyapı & Kurulum
-
-- ✅ `experiments/` klasör yapısı oluşturuldu (9 kombinasyon: 3 model × 3 strateji — tümü Gemini)
-- ✅ `prompts/` klasörü oluşturuldu
-  - ✅ `zero_shot.py` — orijinal CodeEnhancer system prompt'u
-  - ✅ `few_shot.py` — 3 örnekli few-shot (CWE-78, CWE-89, CWE-502)
-  - ✅ `chain_of_thought.py` — CoT formatında prompt
-- ✅ `analysis/` klasörü oluşturuldu (henüz script yok)
-  - ✅ `compare_results.py` — Bandit hit rate, çözüm oranı, CWE kırılımı, model/strateji karşılaştırması
-  - ✅ `visualize.py` — 5 grafik: bandit hit rate, resolution rate, avg iterations, CWE heatmap, final status
-- ✅ `requirements.txt` oluşturuldu (openai, google-generativeai, python-dotenv, matplotlib, pandas, bandit, pylint)
-- ✅ `.gitignore` oluşturuldu (.env dahil)
-- ✅ `code_generator.py` hardcoded API key → `.env`'den okuyacak şekilde düzeltildi
-- ✅ `code_validator.py` hardcoded API key → `.env`'den okuyacak şekilde düzeltildi
-- [ ] `README.md`'yi fork'a göre güncelle (proje amacını ve nasıl çalıştırılacağını açıkla)
-
----
-
-## 🧪 Deneyler
-
-### Prompt Stratejileri
-- ✅ Zero-shot prompt şablonu yazıldı (`prompts/zero_shot.py`)
-- ✅ Few-shot prompt şablonu yazıldı (`prompts/few_shot.py`, 3 örnek)
-- ✅ Chain-of-Thought prompt şablonu yazıldı (`prompts/chain_of_thought.py`)
-- ✅ Prompt şablonları `code_generator.py`'ye parametre olarak geçilebilir hale getirildi
-
-### Model Entegrasyonları
-- ✅ Llama 3.1 8B entegrasyonu (Ollama)
-- ✅ DeepSeek-Coder 6.7B entegrasyonu eklendi (indiriliyor)
-- ✅ Mistral 7B entegrasyonu eklendi (indiriliyor)
-- ✅ Gemini kapsam dışı bırakıldı (rate limit sorunu)
-- ✅ Tüm modeller Ollama üzerinden çalışıyor, tek client
+## 🧪 Deneyler — Devam Eden
 
 ### Deney Çalıştırma
-- ✅ 15 prompt seçildi → `data/mid_phase_prompts.json` (12 CWE kategorisi, katmanlı örnekleme, seed=42)
+- ✅ 15 prompt seçildi → `data/mid_phase_prompts.json` (12 CWE, katmanlı örnekleme, seed=42)
+- ✅ 3 model × 3 strateji = 9 deney, **135 kod dosyası üretildi**
+- 🔄 Tüm deneylerin validasyonu çalışıyor (`python3 code_validator.py`)
 - [ ] 150 prompt → final için
-- [ ] Her kombinasyon: `experiments/<model>_<prompt_stratejisi>/` altına kaydet
-- [ ] Her çalıştırmada random seed sabitle (tekrarlanabilirlik)
 
 ---
 
 ## 📊 Analiz & Değerlendirme
 
-- [ ] Zafiyet oranı hesaplama scripti yaz
-- [ ] CWE bazında kırılım tablosu oluştur
-- [ ] Ortalama iterasyon sayısı hesapla
-- [ ] Karşılaştırma tablosu (model × prompt stratejisi matrisi)
+- [ ] Validation tamamlanınca `compare_results.py` çalıştır → karşılaştırma tablosu
+- [ ] Validation tamamlanınca `visualize.py` çalıştır → 5 grafik
 - [ ] En az 5 başarısız örnek seç → nitel hata analizi yaz
 
 ---
@@ -89,10 +51,32 @@
 
 ## ✅ Tamamlananlar
 
-_(Burası başlangıçta boş — Claude Code tamamladıkça buraya taşıyacak)_
+### Altyapı & Kurulum
+- ✅ `.env` dosyası oluşturuldu, GOOGLE_API_KEY eklendi
+- ✅ `.env.example` ve `.gitignore` oluşturuldu
+- ✅ `requirements.txt` oluşturuldu (google-genai, ollama, python-dotenv, bandit, pylint, matplotlib, pandas)
+- ✅ Python virtual environment kuruldu (`.venv/`)
+- ✅ Ollama kuruldu, 3 model indirildi: llama3.1, deepseek-coder:6.7b, mistral:7b
+- ✅ `experiments/` klasör yapısı: 9 kombinasyon (3 model × 3 strateji)
+- ✅ `prompts/zero_shot.py`, `few_shot.py`, `chain_of_thought.py` yazıldı
+- ✅ `analysis/compare_results.py` — karşılaştırma tabloları (Bandit hit rate, CWE kırılımı, model/strateji ortalamaları)
+- ✅ `analysis/visualize.py` — 5 grafik (bar chart, heatmap, stacked bar)
+- ✅ `code_generator.py` hardcoded API key kaldırıldı, Ollama multi-model runner'a dönüştürüldü
+- ✅ `code_validator.py` OpenAI → Ollama'ya uyarlandı, Bandit + Pylint + LLM döngüsü
+
+### Veri & Deneyler
+- ✅ LLMSecEval veri seti indirildi (`data/llmseceval/`, 150 prompt, 18 CWE)
+- ✅ 15 prompt seçildi: `data/select_prompts.py` + `data/mid_phase_prompts.json`
+- ✅ 135 kod dosyası üretildi (9 deney × 15 prompt, tümü success)
+
+### Kararlar
+- ✅ Model matrisi kesinleşti: Llama 3.1 8B + DeepSeek-Coder 6.7B + Mistral 7B (tümü Ollama)
+- ✅ Prompt stratejileri: Zero-shot, Few-shot (3 örnek), Chain-of-Thought
+- ✅ 15 prompt: CWE dağılımına göre katmanlı örnekleme (seed=42)
+- ✅ Gemini kapsam dışı bırakıldı (rate limit sorunu, bkz. DECISIONS.md #005)
 
 ---
 
 ## 🔴 Bloke / Karar Bekleniyor
 
-_(Şu an bloke eden karar yok — tüm açık kararlar kesinleşti)_
+_(Şu an bloke eden karar yok)_
