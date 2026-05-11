@@ -10,7 +10,7 @@
 - [ ] Repo'yu local'de çalıştır (Python env kur, bağımlılıkları yükle)
 - ✅ `.env` dosyası oluşturuldu (şablon hazır — gerçek API key'leri sen gireceksin)
 - [ ] `.env` dosyasına gerçek OPENAI_API_KEY ve GOOGLE_API_KEY değerlerini gir
-- [ ] `data/llmseceval/` klasörünü oluştur, veri setini indir
+- ✅ `data/llmseceval/` klasörü oluşturuldu, LLMSecEval veri seti indirildi (150 prompt, 18 CWE)
 - [ ] İlk 15 prompt ile **GPT-4o zero-shot** (orijinal baseline) çalıştır
 - [ ] `experiments/gpt4o_zeroshot/` altına sonuçları kaydet
 - [ ] İkinci model ile aynı 15 prompt üzerinde çalıştır → **Baseline 2**
@@ -54,7 +54,7 @@
 - [ ] Her model için API çağrısını izole et, ileride kolayca yeni model eklenebilsin
 
 ### Deney Çalıştırma
-- [ ] 15 prompt → mid-phase için
+- ✅ 15 prompt seçildi → `data/mid_phase_prompts.json` (12 CWE kategorisi, katmanlı örnekleme, seed=42)
 - [ ] 150 prompt → final için
 - [ ] Her kombinasyon: `experiments/<model>_<prompt_stratejisi>/` altına kaydet
 - [ ] Her çalıştırmada random seed sabitle (tekrarlanabilirlik)
