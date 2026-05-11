@@ -10,6 +10,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 from openai import OpenAI
 from tqdm import tqdm
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # =================== User Configuration ===================
 # Specify which attempts to process (can be a range "1-5" or "1,3,5" etc.)
@@ -21,8 +24,8 @@ BASE_INPUT_ROOT = Path("/path/to/code_generation_outputs")      # Change to your
 # Directory where validation results and revised code will be saved
 BASE_OUTPUT_ROOT = Path("/path/to/validation_outputs")          # Change to your output directory
 
-# Your OpenAI API key (replace with your real API key)
-API_KEY = "YOUR_OPENAI_API_KEY"
+# API key loaded from .env
+API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Dictionary of models to validate (add your fine-tuned models as needed)
 TARGET_MODELS = {

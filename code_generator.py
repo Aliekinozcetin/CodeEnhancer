@@ -5,6 +5,9 @@ import concurrent.futures
 import re
 from openai import OpenAI
 from tqdm import tqdm
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ------------------ Configuration ------------------
 # Set the root directory for all data operations (default: script directory)
@@ -24,8 +27,8 @@ MODEL_INFO = {
     # "another_model": { ... }  # Add more models as needed
 }
 
-# OpenAI API key for code generation (replace with your actual API key)
-API_KEY = "YOUR_OPENAI_API_KEY"
+# API keys loaded from .env
+API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=API_KEY)
 
 # Maximum number of samples to process (set None for all)
