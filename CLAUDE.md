@@ -28,8 +28,8 @@ Baseline olarak alınan **CodeEnhancer** (JAIST Cybersecurity Research Lab) fram
 
 |                          | Zero-shot | Few-shot | Chain-of-Thought |
 |--------------------------|-----------|----------|------------------|
-| Gemini 1.5 Flash         | planlı    | planlı   | planlı           |
 | Gemini 2.0 Flash         | planlı    | planlı   | planlı           |
+| Gemini 2.5 Flash         | planlı    | planlı   | planlı           |
 | Llama 3.1 8B (Ollama)    | planlı    | planlı   | planlı           |
 
 > Gemini modelleri ücretsiz Google Generative AI API. Llama 3.1 8B Ollama ile local çalışır (M4 + 16GB). OpenAI kapsam dışı. Bkz. DECISIONS.md #005.
@@ -50,12 +50,12 @@ CodeEnhancer/                  ← fork'lanan orijinal repo
 │   └── all_dialogues.json     ← Tüm iterasyonların logları
 │
 ├── experiments/               ← Her deney kombinasyonu için klasör (3 model × 3 strateji = 9)
-│   ├── gemini15flash_zeroshot/
-│   ├── gemini15flash_fewshot/
-│   ├── gemini15flash_cot/
 │   ├── gemini20flash_zeroshot/
 │   ├── gemini20flash_fewshot/
 │   ├── gemini20flash_cot/
+│   ├── gemini25flash_zeroshot/
+│   ├── gemini25flash_fewshot/
+│   ├── gemini25flash_cot/
 │   ├── llama31_8b_zeroshot/
 │   ├── llama31_8b_fewshot/
 │   └── llama31_8b_cot/

@@ -71,9 +71,9 @@ _(Şu an bekleyen karar yok)_
 ### #005 — Model Seçimi (Final)
 **Tarih:** 2026-05-11 → Final revize: 2026-05-11
 **Durum:** ✅ Kesinleşti
-**Karar:** Deney matrisi: **Gemini 1.5 Flash** (Google API, ücretsiz), **Gemini 2.0 Flash** (Google API, ücretsiz), **Llama 3.1 8B via Ollama** (local, ücretsiz). OpenAI API'si kapsam dışı bırakıldı; ileride gerekirse eklenir.
-**Gerekçe:** Tüm modeller ücretsiz. Gemini 1.5 Flash vs 2.0 Flash → nesil karşılaştırması. Llama 3.1 8B (Ollama, local) → cloud vs local karşılaştırması. M4 çip + 16 GB RAM ile Ollama Metal desteğiyle hızlı çalışır. Üç farklı paradigma akademik katkıyı güçlendiriyor.
-**Reddedilen Alternatifler:** GPT-4o / GPT-4o-mini (ücretli), Claude Haiku (ücretli), Gemini 1.5 Pro (Gemini 2.0 Flash daha güncel ve ücretsiz).
+**Karar:** Deney matrisi: **Gemini 2.0 Flash** (Google API, ücretsiz), **Gemini 2.5 Flash** (Google API, ücretsiz), **Llama 3.1 8B via Ollama** (local, ücretsiz). OpenAI API'si kapsam dışı bırakıldı; ileride gerekirse eklenir.
+**Gerekçe:** Tüm modeller ücretsiz. Gemini 1.5 Flash yeni google-genai SDK'sında artık mevcut değil (deprecated). Gemini 2.0 Flash vs 2.5 Flash → iki farklı nesil karşılaştırması. Llama 3.1 8B (Ollama, local) → cloud vs local karşılaştırması. M4 çip + 16 GB RAM ile Ollama Metal desteğiyle hızlı çalışır.
+**Reddedilen Alternatifler:** GPT-4o / GPT-4o-mini (ücretli), Claude Haiku (ücretli), Gemini 1.5 Flash (yeni SDK'da mevcut değil).
 **Etkisi:** `code_generator.py`'e Gemini client + Ollama REST API client entegre edilecek. Deney klasörleri güncellendi.
 
 ---

@@ -1,133 +1,80 @@
+# Experiment runner: multi-model × multi-prompt-strategy code generation
+# Desteklenen modeller: gemini-1.5-flash, gemini-2.0-flash, llama3.1 (Ollama)
+# Desteklenen stratejiler: zero_shot, few_shot, chain_of_thought
+# Çıktı: experiments/<model>_<strateji>/ klasörlerine izole kaydedilir
+
 import os
 import json
-import pathlib
-import concurrent.futures
 import re
-from openai import OpenAI
+import concurrent.futures
 from tqdm import tqdm
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # ------------------ Configuration ------------------
-# Set the root directory for all data operations (default: script directory)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Path to the dataset file containing code generation prompts (JSON format)
-DATASET_PATH = os.path.join(BASE_DIR, "dataset.json")   # Change as needed
+DATASET_PATH = os.path.join(BASE_DIR, "data", "mid_phase_prompts.json")
 
-# Model configuration: Add one or more models to generate code with.
-# "model": LLM name or fine-tuned OpenAI model ID
-# "dataset": The path to the prompt dataset to use with this model
-MODEL_INFO = {
-    "baseline": {
-        "model": "gpt-4o",  # Change to your model name or OpenAI fine-tuned model ID
-        "dataset": DATASET_PATH,
-    },
-    # "another_model": { ... }  # Add more models as needed
+# Her kombinasyon: (model_key, prompt_strategy) → experiments/<model_key>_<strategy>/
+EXPERIMENTS = [
+    ("gemini20flash", "zero_shot"),
+    ("gemini20flash", "few_shot"),
+    ("gemini20flash", "chain_of_thought"),
+    ("gemini25flash", "zero_shot"),
+    ("gemini25flash", "few_shot"),
+    ("gemini25flash", "chain_of_thought"),
+    ("llama31_8b",    "zero_shot"),
+    ("llama31_8b",    "few_shot"),
+    ("llama31_8b",    "chain_of_thought"),
+]
+
+# Model ID'leri
+MODEL_IDS = {
+    "gemini20flash": "gemini-2.0-flash",
+    "gemini25flash": "gemini-2.5-flash",
+    "llama31_8b":    "llama3.1",
 }
 
-# API keys loaded from .env
-API_KEY = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=API_KEY)
-
-# Maximum number of samples to process (set None for all)
-SAMPLE_LIMIT = None
-
-# Number of threads/workers for parallel code generation
-MAX_WORKERS = 10
-
-# Maximum retry attempts if the LLM fails to generate the required docstring structure
 MAX_RETRIES = 5
-
-# Required docstring sections for all generated code
+MAX_WORKERS = 4  # Ollama single-threaded olduğu için düşük tutuldu
 REQUIRED_SECTIONS = ["Input Prompt", "Intention", "Functionality"]
 
-# ------------------ Dataset Loader ------------------
-def read_dataset(path, limit=None):
-    """
-    Loads code generation prompts from the specified dataset file.
+CORRECTION_PROMPT = (
+    "The Python script you just provided does NOT start with the required "
+    "top-level docstring.\n\n"
+    "Please regenerate the ENTIRE script and:\n"
+    "- Put a triple-quoted docstring ( \"\"\" ... \"\"\" ) at the VERY TOP.\n"
+    "- Inside include these three headings exactly:\n"
+    "  **Input Prompt**\n"
+    "  **Intention**\n"
+    "  **Functionality**\n"
+    "Return ONLY a fenced python code block. No explanations outside the block."
+)
 
-    Args:
-        path (str): Path to the JSON file with prompts.
-        limit (int or None): Max number of samples to read.
-
-    Returns:
-        List[dict]: List of prompt dicts with "id" and "prompt" keys.
-    """
+# ------------------ Dataset ------------------
+def read_dataset(path):
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
+    return [{"id": item["id"], "prompt": item["prompt"]} for item in data]
 
-    samples = []
-    for i, item in enumerate(data):
-        if limit and i >= limit:
-            break
-        samples.append({
-            "id": item.get("id", f"sample_{i:04d}"),
-            "prompt": item.get("prompt", ""),
-        })
-    return samples
-
-# ------------------ Prompt Construction ------------------
-def create_prompt(prompt: str) -> str:
-    """
-    Creates a structured prompt to instruct the LLM to:
-      - Write Python code for a given task
-      - Add a triple-quoted docstring at the top with three sections
-      - Output code only (no explanations)
-
-    Args:
-        prompt (str): The natural language description of the coding task.
-
-    Returns:
-        str: The full system/user prompt to send to the LLM.
-    """
-    return (
-        "Please write Python code for the following task. "
-        "At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n"
-        "• **Input Prompt**: Restate the prompt clearly.\n"
-        "• **Intention**: State the purpose of the code.\n"
-        "• **Functionality**: Describe briefly how the code solves the task.\n\n"
-        "Write only valid Python code and no extra explanations. Return the complete script only.\n\n"
-        f"Prompt: {prompt}"
-    )
-
-# Regex to extract code from a markdown-style code fence in LLM output
+# ------------------ Code Cleaning ------------------
 _fence_pattern = re.compile(r"```(?:python)?\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
 
-def extract_code_from_response(response: str) -> str:
-    """
-    Extracts the actual Python code from an LLM's response.
-    Handles markdown code blocks and inline code patterns.
-
-    Args:
-        response (str): Raw response from the LLM.
-
-    Returns:
-        str: The extracted Python code.
-    """
+def extract_code(response: str) -> str:
     text = response.strip()
-    code_blocks = _fence_pattern.findall(text)
-    if code_blocks:
-        return code_blocks[-1].strip()
-    inline_match = re.search(r"((?:def |class ).*)", text, re.DOTALL)
-    if inline_match:
-        return inline_match.group(1).strip()
+    blocks = _fence_pattern.findall(text)
+    if blocks:
+        return blocks[-1].strip()
+    match = re.search(r"((?:def |class |import |from ).*)", text, re.DOTALL)
+    if match:
+        return match.group(1).strip()
     return text
 
-def clean_python_code(code: str) -> str:
-    """
-    Cleans and formats Python code, removing markdown fences and trailing whitespace.
-    Optionally, tries to auto-format code using 'black' (if available).
-
-    Args:
-        code (str): Python code (possibly with markdown syntax).
-
-    Returns:
-        str: Cleaned and formatted Python code.
-    """
+def clean_code(code: str) -> str:
     code = re.sub(r"^\s*```(?:python)?", "", code, flags=re.IGNORECASE).strip()
-    code = re.sub(r"```$", "", code).strip()
+    code = re.sub(r"```\s*$", "", code).strip()
     code = "\n".join(line.rstrip() for line in code.splitlines())
     try:
         import black
@@ -136,213 +83,179 @@ def clean_python_code(code: str) -> str:
         pass
     return code.rstrip() + "\n"
 
-def has_required_docstring_sections(code: str) -> bool:
-    """
-    Checks if the code starts with a docstring containing all required sections.
-
-    Args:
-        code (str): Python code string.
-
-    Returns:
-        bool: True if all required docstring fields are present, False otherwise.
-    """
+def has_docstring(code: str) -> bool:
     return all(section in code for section in REQUIRED_SECTIONS)
 
-def process_prompt(model_name, model_id, prompt, prompt_id, output_dir):
-    """
-    Generates code for a prompt using the specified LLM, ensuring it meets docstring requirements.
-    If not, retries up to MAX_RETRIES times with corrective prompts.
+# ------------------ LLM Clients ------------------
+def call_gemini(model_id: str, messages: list) -> str:
+    from google import genai
+    from google.genai import types
+    client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
-    Args:
-        model_name (str): Model name (for folder structure).
-        model_id (str): Model identifier (e.g., 'gpt-4o' or fine-tuned model id).
-        prompt (str): The code generation prompt.
-        prompt_id (str): Unique id for the prompt (used in filenames).
-        output_dir (str): Where to save outputs.
+    # system mesajını ayır, geri kalanı history'e dönüştür
+    system_msg = next((m["content"] for m in messages if m["role"] == "system"), None)
+    history = []
+    for m in messages[:-1]:
+        if m["role"] == "system":
+            continue
+        role = "model" if m["role"] == "assistant" else "user"
+        history.append(types.Content(role=role, parts=[types.Part(text=m["content"])]))
 
-    Returns:
-        dict: Contains prompt_id, status, and LLM dialogue history.
-    """
-    model_folder = os.path.join(output_dir, model_name)
-    code_dir = os.path.join(model_folder, "code")
+    config = types.GenerateContentConfig(
+        system_instruction=system_msg,
+        temperature=0,
+        max_output_tokens=2048,
+    )
+    chat = client.chats.create(model=model_id, history=history, config=config)
+    response = chat.send_message(messages[-1]["content"])
+    return response.text.strip()
+
+def call_ollama(model_id: str, messages: list) -> str:
+    import ollama
+    ollama_messages = [
+        {"role": m["role"], "content": m["content"]}
+        for m in messages
+    ]
+    response = ollama.chat(model=model_id, messages=ollama_messages)
+    return response.message.content.strip()
+
+def call_llm(model_key: str, messages: list) -> str:
+    model_id = MODEL_IDS[model_key]
+    if model_key.startswith("gemini"):
+        return call_gemini(model_id, messages)
+    elif model_key == "llama31_8b":
+        return call_ollama(model_id, messages)
+    raise ValueError(f"Bilinmeyen model: {model_key}")
+
+# ------------------ Prompt Builder ------------------
+def build_prompt(strategy: str, task: str) -> tuple[str, str]:
+    """(system_message, user_message) döndürür."""
+    if strategy == "zero_shot":
+        from prompts.zero_shot import build_prompt as bp, SYSTEM_MESSAGE
+    elif strategy == "few_shot":
+        from prompts.few_shot import build_prompt as bp, SYSTEM_MESSAGE
+    elif strategy == "chain_of_thought":
+        from prompts.chain_of_thought import build_prompt as bp, SYSTEM_MESSAGE
+    else:
+        raise ValueError(f"Bilinmeyen strateji: {strategy}")
+    return SYSTEM_MESSAGE, bp(task)
+
+# ------------------ Core Runner ------------------
+def process_prompt(model_key, strategy, prompt_id, prompt, output_dir):
+    code_dir = os.path.join(output_dir, "code")
     os.makedirs(code_dir, exist_ok=True)
-    os.makedirs(model_folder, exist_ok=True)
 
     code_file = os.path.join(code_dir, f"{prompt_id}.py")
-    dialogue_file = os.path.join(model_folder, f"{prompt_id}_dialogue.json")
+    dialogue_file = os.path.join(output_dir, f"{prompt_id}_dialogue.json")
 
-    # Skip if already generated
     if os.path.exists(code_file) and os.path.exists(dialogue_file):
-        try:
-            with open(dialogue_file, encoding="utf-8") as f:
-                dialogue_history = json.load(f)
-        except Exception:
-            dialogue_history = None
-        return {"prompt_id": prompt_id, "status": "skipped", "dialogue": dialogue_history}
+        return {"prompt_id": prompt_id, "status": "skipped"}
 
+    system_msg, user_msg = build_prompt(strategy, prompt)
     messages = [
-        {"role": "system", "content": "You are a code generation assistant."},
-        {"role": "user", "content": create_prompt(prompt)},
+        {"role": "system", "content": system_msg},
+        {"role": "user",   "content": user_msg},
     ]
 
     cleaned_code = ""
-    pass_check = False
-    retry_count = 0
+    passed = False
 
-    # Main LLM code generation and validation loop
-    while retry_count <= MAX_RETRIES:
+    for attempt in range(MAX_RETRIES + 1):
         try:
-            response = client.chat.completions.create(
-                model=model_id,
-                messages=messages,
-                max_tokens=1024,
-                temperature=0,
-            )
-            assistant_reply = response.choices[0].message.content.strip()
+            reply = call_llm(model_key, messages)
         except Exception as e:
-            # API error: return error status for this prompt
-            return {"prompt_id": prompt_id, "status": f"error: {e}", "dialogue": None}
+            return {"prompt_id": prompt_id, "status": f"error: {e}"}
 
-        raw_code = extract_code_from_response(assistant_reply)
-        cleaned_code = clean_python_code(raw_code)
+        cleaned_code = clean_code(extract_code(reply))
+        messages.append({"role": "assistant", "content": reply})
 
-        # If required docstring present, finish
-        if has_required_docstring_sections(cleaned_code):
-            pass_check = True
-            messages.append({"role": "assistant", "content": assistant_reply})
+        if has_docstring(cleaned_code):
+            passed = True
             break
 
-        # Otherwise, prompt the model to fix docstring and try again
-        retry_count += 1
-        messages.append({"role": "assistant", "content": assistant_reply})
+        if attempt < MAX_RETRIES:
+            messages.append({"role": "user", "content": CORRECTION_PROMPT})
 
-        if retry_count > MAX_RETRIES:
-            break
+    status = "success" if passed else "fail_docstring"
 
-        correction_prompt = (
-            "The Python script you just provided does NOT start with the required "
-            "top-level docstring.\n\n"
-            "Please regenerate the ENTIRE script again and:\n"
-            "- Put a triple-quoted docstring ( \"\"\" ... \"\"\" ) at the VERY TOP of the file.\n"
-            "- Inside that docstring include the following three headings EXACTLY as written,\n"
-            "  each on its own line, followed by their description:\n"
-            "  **Input Prompt**\n"
-            "  **Intention**\n"
-            "  **Functionality**\n"
-            "- After the docstring, write the rest of the valid Python code.\n\n"
-            "Return ONLY one fenced code block in the form:\n"
-            "```python\n"
-            "(complete script)\n"
-            "```\n"
-            "Do NOT add explanations or text outside the code block."
-        )
-        messages.append({"role": "user", "content": correction_prompt})
-
-    status = "success" if pass_check else "fail_docstring"
-
-    # Save the generated code and dialogue history for transparency/reproducibility
     with open(code_file, "w", encoding="utf-8") as f:
         f.write(cleaned_code)
 
-    dialogue_history = [
+    dialogue = [
         {"role": m["role"], "content": [{"text": m["content"], "type": "text"}]}
         for m in messages
     ]
     with open(dialogue_file, "w", encoding="utf-8") as f:
-        json.dump(dialogue_history, f, indent=2, ensure_ascii=False)
+        json.dump(dialogue, f, indent=2, ensure_ascii=False)
 
-    return {"prompt_id": prompt_id, "status": status, "dialogue": dialogue_history}
+    return {"prompt_id": prompt_id, "status": status}
 
-def run_model_eval(model_name, model_info, output_dir, summary_path, sample_limit=None, max_workers=10):
-    """
-    Runs code generation for a given model on all prompts in the dataset,
-    saving code and dialogue logs, and tracking prompts that failed to produce correct docstrings.
+def run_experiment(model_key, strategy, dataset):
+    exp_name = f"{model_key}_{strategy}"
+    output_dir = os.path.join(BASE_DIR, "experiments", exp_name)
+    os.makedirs(output_dir, exist_ok=True)
 
-    Args:
-        model_name (str): The name of the model (folder structure).
-        model_info (dict): Contains "model" (id) and "dataset" (file path).
-        output_dir (str): Root output directory.
-        summary_path (str): Path to save summary of failures.
-        sample_limit (int): Number of prompts to process (None = all).
-        max_workers (int): Parallel worker threads.
+    print(f"\n▶ {exp_name} ({len(dataset)} prompt)")
+    results = []
 
-    Returns:
-        None (results saved to disk)
-    """
-    dataset = read_dataset(model_info["dataset"], limit=sample_limit)
-    results, all_dialogues, missing_ids = [], [], []
+    # Ollama paralel çağrıya uygun değil → sequential
+    workers = 1 if model_key == "llama31_8b" else MAX_WORKERS
 
-    # Run all prompts in parallel using ThreadPoolExecutor
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_id = {
-            executor.submit(
-                process_prompt,
-                model_name,
-                model_info["model"],
-                d["prompt"],
-                d["id"],
-                output_dir,
-            ): d["id"]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {
+            executor.submit(process_prompt, model_key, strategy, d["id"], d["prompt"], output_dir): d["id"]
             for d in dataset
         }
+        for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc=exp_name):
+            results.append(future.result())
 
-        for future in tqdm(concurrent.futures.as_completed(future_to_id), total=len(future_to_id)):
-            result = future.result()
-            results.append({"prompt_id": result["prompt_id"], "status": result["status"]})
-            if result["dialogue"] is not None:
-                all_dialogues.append({"prompt_id": result["prompt_id"], "dialogue": result["dialogue"]})
-            if result["status"] == "fail_docstring":
-                missing_ids.append(result["prompt_id"])
+    success = sum(1 for r in results if r["status"] == "success")
+    skipped = sum(1 for r in results if r["status"] == "skipped")
+    failed  = sum(1 for r in results if r["status"] not in ("success", "skipped"))
 
-    # Save results and dialogues for later review/validation
-    model_folder = os.path.join(output_dir, model_name)
-    result_path = os.path.join(model_folder, "results.json")
-    dialogue_path = os.path.join(model_folder, "all_dialogues.json")
-    with open(result_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2, ensure_ascii=False)
-    with open(dialogue_path, "w", encoding="utf-8") as f:
-        json.dump(all_dialogues, f, indent=2, ensure_ascii=False)
+    summary = {
+        "experiment": exp_name,
+        "model": MODEL_IDS[model_key],
+        "strategy": strategy,
+        "total": len(results),
+        "success": success,
+        "skipped": skipped,
+        "failed": failed,
+        "results": results,
+    }
+    with open(os.path.join(output_dir, "results.json"), "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2, ensure_ascii=False)
 
-    # Save IDs of samples missing required docstring
-    missing_path = os.path.join(model_folder, "missing_docstrings.txt")
-    with open(missing_path, "w", encoding="utf-8") as f:
-        for pid in missing_ids:
-            f.write(pid + "\n")
+    print(f"  ✓ success={success}  skipped={skipped}  failed={failed}")
+    return summary
 
-    # Append missing samples to summary file (across all models)
-    if missing_ids:
-        with open(summary_path, "a", encoding="utf-8") as f:
-            for pid in missing_ids:
-                f.write(f"{model_name}\t{pid}\n")
-
-    print(f"[{model_name}] Results saved to {result_path}")
-    print(f"[{model_name}] Dialogues saved to {dialogue_path}")
-    if missing_ids:
-        print(f"[{model_name}] {len(missing_ids)} missing docstrings → {missing_path}")
-
+# ------------------ Entrypoint ------------------
 if __name__ == "__main__":
-    """
-    Main script entrypoint.
-    For each model in MODEL_INFO, runs code generation on the selected dataset,
-    saves all outputs, and prints summary statistics.
-    """
-    summary_file = os.path.join(BASE_DIR, "missing_docstrings_summary.txt")
-    if os.path.exists(summary_file):
-        os.remove(summary_file)
+    import argparse
 
-    for model_name, model_info in MODEL_INFO.items():
-        print(f"\n▶ Running model: {model_name} ({model_info['model']})")
-        run_model_eval(
-            model_name = model_name,
-            model_info = model_info,
-            output_dir = BASE_DIR,
-            summary_path = summary_file,
-            sample_limit = SAMPLE_LIMIT,
-            max_workers = MAX_WORKERS,
-        )
+    parser = argparse.ArgumentParser(description="CodeEnhancer multi-model experiment runner")
+    parser.add_argument("--model",    choices=list(MODEL_IDS.keys()) + ["all"], default="all")
+    parser.add_argument("--strategy", choices=["zero_shot", "few_shot", "chain_of_thought", "all"], default="all")
+    parser.add_argument("--dataset",  default=DATASET_PATH)
+    args = parser.parse_args()
 
-    print("\n=== All processing complete ===")
-    if os.path.exists(summary_file):
-        print(f"Missing docstrings for all models: {summary_file}")
-    else:
-        print("No missing docstring samples.")
+    dataset = read_dataset(args.dataset)
+
+    experiments = [
+        (m, s) for m, s in EXPERIMENTS
+        if (args.model == "all" or m == args.model)
+        and (args.strategy == "all" or s == args.strategy)
+    ]
+
+    print(f"Çalıştırılacak deney sayısı: {len(experiments)}")
+    print(f"Prompt sayısı: {len(dataset)}")
+
+    all_summaries = []
+    for model_key, strategy in experiments:
+        summary = run_experiment(model_key, strategy, dataset)
+        all_summaries.append(summary)
+
+    with open(os.path.join(BASE_DIR, "experiments", "all_results.json"), "w", encoding="utf-8") as f:
+        json.dump(all_summaries, f, indent=2, ensure_ascii=False)
+
+    print("\n=== Tüm deneyler tamamlandı ===")

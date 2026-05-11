@@ -44,14 +44,14 @@
 - ✅ Zero-shot prompt şablonu yazıldı (`prompts/zero_shot.py`)
 - ✅ Few-shot prompt şablonu yazıldı (`prompts/few_shot.py`, 3 örnek)
 - ✅ Chain-of-Thought prompt şablonu yazıldı (`prompts/chain_of_thought.py`)
-- [ ] Prompt şablonlarını `code_generator.py`'ye parametre olarak geçirecek refactor yap
+- ✅ Prompt şablonları `code_generator.py`'ye parametre olarak geçilebilir hale getirildi
 
 ### Model Entegrasyonları
-- [ ] Gemini 1.5 Flash entegrasyonu (`google-generativeai` client)
-- [ ] Gemini 2.0 Flash entegrasyonu
-- [ ] Llama 3.1 8B entegrasyonu (Ollama REST API — `http://localhost:11434`)
-- [ ] Ollama kurulumu: `brew install ollama && ollama pull llama3.1`
-- [ ] Her model için API çağrısını izole et, ileride kolayca yeni model eklenebilsin
+- ✅ Gemini 2.0 Flash entegrasyonu (`google-genai` SDK — yeni API)
+- ✅ Gemini 2.5 Flash entegrasyonu (test edildi, çalışıyor)
+- ✅ Llama 3.1 8B entegrasyonu (Ollama client)
+- ✅ Ollama kuruldu, llama3.1 modeli indirildi
+- ✅ Her model izole — `call_gemini` ve `call_ollama` ayrı fonksiyonlar
 
 ### Deney Çalıştırma
 - ✅ 15 prompt seçildi → `data/mid_phase_prompts.json` (12 CWE kategorisi, katmanlı örnekleme, seed=42)
