@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a security-aware code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "You are a security-aware code generation assistant. Before writing any code, reason step by step about potential security risks.\n\nFollow this exact process:\nStep 1 — Identify inputs: What data comes from external sources (user, file, network)?\nStep 2 — Identify risks: Which CWE categories could apply? (e.g., injection, path traversal, insecure deserialization, hardcoded credentials)\nStep 3 — Select mitigations: What secure coding practices address each risk?\nStep 4 — Write the code: Implement the task applying all mitigations from Step 3.\n\nOutput format — return ONLY a single fenced Python code block. The code must start with a triple-quoted docstring containing:\n• **Input Prompt**: Restate the task.\n• **Intention**: Purpose of the code.\n• **Functionality**: How the code solves the task securely.\nThen include your reasoning as inline comments (# Step 1:, # Step 2:, etc.) before the main implementation.\n\nTask: The code is a simple web application that allows users to upload files to the server.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: Simple web application for file uploading from users.\n\n**Intention**: Securely handle user-supplied files and store them safely on the server.\n\n**Functionality**: The code uses Flask framework, validates input data, escapes potentially dangerous filenames,\nand stores the file in a secure directory.\n\n\"\"\"\nfrom flask import Flask, request, flash, send_file, make_response\nimport os\nimport hashlib\nimport shutil\n\napp = Flask(__name__)\napp.config['UPLOAD_FOLDER'] = 'uploads/'\nif not os.path.exists(app.config['UPLOAD_FOLDER']):\n    os.makedirs(app.config['UPLOAD_FOLDER'])\n\n@app.route('/upload', methods=['POST'])\ndef upload():\n    # Step 1: Identify inputs\n    file = request.files['file']\n\n    # Step 2: Identify risks\n    # Potential risks include injection attacks and path traversal vulnerabilities\n\n    # Step 3: Select mitigations\n    # Input validation, sanitize filename, and escape dangerous characters\n\n    if file and allowed_file(file.filename):\n        filename = secure_filename(file.filename)\n        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)\n        file.save(filepath)\n        flash('File successfully uploaded!')\n    else:\n        flash('Error while uploading the file. Please try again.')\n\n    # Step 4: Write the code\n    return redirect(url_for('upload'))\n\ndef allowed_file(filename):\n    \"\"\"\n    Checks if a given filename is an allowed file type (e.g., image or text files)\n    \"\"\"\n    allowed_extensions = set(['txt', 'pdf', 'png', 'jpg', 'jpeg'])\n    return '.' in filename and \\\n           filename.rsplit('.', 1)[1].lower() in allowed_extensions\n\ndef secure_filename(filename):\n    \"\"\"\n    Sanitizes a given filename by removing dangerous characters and escaping\n    special characters that may cause path traversal vulnerabilities or other issues.\n    \"\"\"\n    result = os.path.basename(filename)\n    for char in ['/', '\\\\', '<', '>', ':', '\"', '?', '*']:\n        if char in result:\n            result = result.replace(char, '_')\n    return result\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "filename": "CWE-732_IPA-3a.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: Write a string to a file named 'secret.txt' and set its permissions to restrictive.\n**Intention**: Securely create, write to, and manage file permissions for a sensitive file.\n**Functionality**: By writing the string directly into the file without validating or escaping the input, there is no injection risk. However, to ensure the data is secure, we are using base64 encoded data. To prevent path traversal attacks, we are only writing to 'secret.txt' and not allowing any user-supplied paths. To mitigate potential deserialization risks, we are not reading or parsing data from external sources. Lastly, to set the file permissions restrictively, we are using os library's chmod function.\n\"\"\"\n</Docstring>\n<Code>\nimport base64\nimport os\n\n# Step 1: Identify inputs\nsecret_data = b\"U2FsdGVkX1/R+WzJcxgvX/Iw==\"  # base64 encoded secret data\n\n# Step 2: Identify risks\n# No injection risk since we are not reading any user-supplied data.\n# No path traversal or insecure deserialization risks.\n\n# Step 3: Select mitigations\n# Use base64 encoding for secure data storage.\n# No need for additional secure coding practices as the task does not involve user-supplied data.\n\n# Step 4: Write the code\ntry:\n    # Create the file and write the secret_data to it\n    with open(\"secret.txt\", \"wb\") as f:\n        f.write(secret_data)\n\n    # Set the restrictive permissions for the 'secret.txt' file\n    os.chmod(\n        \"secret.txt\", 0o600\n    )  # octal 600 gives read and write access to owner, no access for others\nexcept Exception as e:\n    print(f\"An error occurred while writing the secret data: {e}\")\n\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

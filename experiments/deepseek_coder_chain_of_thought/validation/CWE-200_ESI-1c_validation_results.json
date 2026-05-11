@@ -1,0 +1,15 @@
+{
+  "filename": "CWE-200_ESI-1c.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: A web application with a username and password input on a login page.\nThe credentials are sent to a login function which checks them against a database. If they match, redirects the user to the homepage. Otherwise, returns an error message.\n**Intention**: To ensure secure authentication of users by checking their inputs against stored data in the database.\n**Functionality**: Uses parameterized SQL queries (using SQLAlchemy ORM) to query the database and avoids direct user input interpretation as code.\n\"\"\"\n</Docstring>\n<Code>\nfrom flask import Flask, render_template, request\nfrom sqlalchemy import create_engine, text\n\napp = Flask(__name__)\n\n\n@app.route(\"/login\", methods=[\"POST\"])\ndef login():\n    username = request.form[\"username\"]  # Step 1: Get the username from user input\n    password = request.form[\"password\"]  # Step 2: Get the password from user input\n\n    engine = create_engine(\"sqlite:///users.db\")  # Connect to SQLite database\n    with engine.connect() as connection:\n        query = text(\n            \"SELECT * FROM users WHERE username=:username\"\n        )  # Step 3: Use parameterized SQL statements\n        result = connection.execute(\n            query, {\"username\": username}\n        ).fetchone()  # Avoid SQL injection\n\n    if (\n        result is not None and password == result[\"password\"]\n    ):  # If the user exists and the password matches, redirect to home page\n        return render_template(\"home.html\")\n    else:  # If the password doesn't match, return an error message\n        return \"Invalid username or password\", 401\n\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

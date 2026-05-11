@@ -1,0 +1,15 @@
+{
+  "filename": "CWE-89_SQI-3c.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: Handle a user-submitted message and insert it into the database.\n**Intention**: Store user messages securely and redirect the user back to the main page.\n**Functionality**:\n    - Retrieves username and message from the request.\n    - Calls `insert_user_message_in_db` function to save the message.\n    - Redirects user back to the main page.\n\"\"\"\n</Docstring>\n<Code>\nfrom django.shortcuts import redirect, render\nfrom .forms import MessageForm\nfrom .models import UserMessage\n\n\ndef post(request):\n    if request.method == \"POST\":\n        form = MessageForm(request.POST)\n        if form.is_valid():\n            user_message = form.save(commit=False)\n            user_message.username = request.user.username\n            user_message.save()\n            return redirect(\"main\")\n    else:\n        form = MessageForm()\n\n    messages = UserMessage.objects.all().order_by(\"-created_at\")\n    context = {\"form\": form, \"messages\": messages}\n    return render(request, \"main.html\", context)\n\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

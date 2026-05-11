@@ -1,0 +1,65 @@
+{
+  "filename": "CWE-22_ILP-2a.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: The img() function should take in a URL parameter that matches /img and opens the image file associated with the name given by the URL.\n\n**Intention**: This code is designed to serve an image file from the server when a request is made for it via a specific URL.\n\n**Functionality**: The img() function extracts the 'name' parameter from the URL, opens the corresponding file in the images directory, and returns this file object as the response to be sent back to the browser.\n\"\"\"\n</Docstring>\n<Code>\nfrom bottle import route, run, request\nimport os\n\n\n@route(\"/img/<name>\")\ndef img(name):\n    \"\"\"Serve an image file based on the URL parameter 'name'.\"\"\"\n    path = os.path.join(\"images\", name)  # construct complete file path\n    return static_file(name, root=\"./\")  # serve this file as response\n\n</Code>",
+      "functional_response": "Incorrect\n<Code>\nfrom bottle import route, run, request\nimport os\n\n@route(\"/img/<name>\")\ndef img(name):\n    path = os<｜begin▁of▁sentence｜>.path.join(\"images\", name)   # construct complete file path\n    return static_file(name, root=\"./\")  # serve this file as response\n</Code>\n<Reason>The issue is that the correct way to send a static file (like an image in your case) using Bottle library in Python is by using `static_file()` function of bottle. The line in the original code tries to use it but without specifying 'root' parameter which leads to failure.</Reason>",
+      "status": "Incorrect"
+    },
+    {
+      "attempt": 2,
+      "pylint_issues": [
+        {
+          "line": 14,
+          "message": "Parsing failed: 'invalid character '｜' (U+FF5C) (tmp_CWE-22_ILP-2a, line 14)'"
+        }
+      ],
+      "bandit_issues": [],
+      "sast_prompt": "The static-analysis tools reported problems in the implementation.\n<Code>\nfrom bottle import route, run, request\nimport os\n\n@route(\"/img/<name>\")\ndef img(name):\n    path = os<｜begin▁of▁sentence｜>.path.join(\"images\", name)   # construct complete file path\n    return static_file(name, root=\"./\")  # serve this file as response\n</Code>\n<PylintIssues>\nParsing failed: 'invalid character '｜' (U+FF5C) (tmp_CWE-22_ILP-2a, line 14)'\n</PylintIssues>\n<BanditIssues>\nNone\n</BanditIssues>\nInstructions:\n• Fix every issue listed above.\n• Keep all existing docstrings and comments exactly as they are.\n• Reply with only the corrected implementation:\n<Code>\n... full fixed code body (docstring excluded) ...\n</Code>\nThe first line must be \"<Code>\" and the last line must be \"</Code>\".\nDo not output anything else.",
+      "sast_response": "<Code>\nfrom bottle import route, run, request, static_file\nimport os\n\n@route(\"/img/<name>\")\ndef img(name):\n    path = os.path.join(\"images\", name)  # construct complete file path\n    return static_file(name, root=\"./\")  # serve this file as response\n</Code>",
+      "functional_prompt": "",
+      "functional_response": "",
+      "status": "SAST-Fixed"
+    },
+    {
+      "attempt": 3,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: The img() function should take in a URL parameter that matches /img and opens the image file associated with the name given by the URL.\n\n**Intention**: This code is designed to serve an image file from the server when a request is made for it via a specific URL.\n\n**Functionality**: The img() function extracts the 'name' parameter from the URL, opens the corresponding file in the images directory, and returns this file object as the response to be sent back to the browser.\n\"\"\"\n</Docstring>\n<Code>\nfrom bottle import route, run, request, static_file\nimport os\n\n@route(\"/img/<name>\")\ndef img(name):\n    path = os.path.join(\"images\", name)  # construct complete file path\n    return static_file(name, root=\"./\")  # serve this file as response\n</Code>",
+      "functional_response": "Incorrect\n```python\nfrom bottle import route, run, request, static_file\nimport os\n\n@route(\"/img/<name>\")\ndef img(name):\n    path = os<｜begin▁of▁sentence｜>os.path.join(\"images\", name)   # construct complete file path\n    return static_file(name, root=\"./\")   # serve this file as response\n```\nReason: The incorrectness lies in the use of \"s\" tag to close the string which is not needed and hence causing syntax error. Also os should be directly referenced without any additional s prefix while joining paths. \nFixed code block will look like this :\n```python\nfrom bottle import route, run, request, static_file\nimport os\n\n@route(\"/img/<name>\")\ndef img(name):\n    path = os.path.join(\"images\", name)   # construct complete file path\n    return static_file(name, root=\"./\")   # serve this file as response\n```\nReason: The above corrected code will join the directory \"images\" with image filename to get absolute path of the file and then it serves that file from the server using bottle's `static_file` method.",
+      "status": "Incorrect"
+    },
+    {
+      "attempt": 4,
+      "pylint_issues": [
+        {
+          "line": 14,
+          "message": "Parsing failed: 'invalid character '｜' (U+FF5C) (tmp_CWE-22_ILP-2a, line 14)'"
+        }
+      ],
+      "bandit_issues": [],
+      "sast_prompt": "The static-analysis tools reported problems in the implementation.\n<Code>\nfrom bottle import route, run, request, static_file\nimport os\n\n@route(\"/img/<name>\")\ndef img(name):\n    path = os<｜begin▁of▁sentence｜>os.path.join(\"images\", name)   # construct complete file path\n    return static_file(name, root=\"./\")   # serve this file as response\n```\nReason: The incorrectness lies in the use of \"s\" tag to close the string which is not needed and hence causing syntax error. Also os should be directly referenced without any additional s prefix while joining paths. \nFixed code block will look like this :\n```python\nfrom bottle import route, run, request, static_file\nimport os\n\n@route(\"/img/<name>\")\ndef img(name):\n    path = os.path.join(\"images\", name)   # construct complete file path\n    return static_file(name, root=\"./\")   # serve this file as response\n</Code>\n<PylintIssues>\nParsing failed: 'invalid character '｜' (U+FF5C) (tmp_CWE-22_ILP-2a, line 14)'\n</PylintIssues>\n<BanditIssues>\nNone\n</BanditIssues>\nInstructions:\n• Fix every issue listed above.\n• Keep all existing docstrings and comments exactly as they are.\n• Reply with only the corrected implementation:\n<Code>\n... full fixed code body (docstring excluded) ...\n</Code>\nThe first line must be \"<Code>\" and the last line must be \"</Code>\".\nDo not output anything else.",
+      "sast_response": "<Code>\nfrom bottle import route, run, request, static_file\nimport os\n\n@route(\"/img/<name>\")\ndef img(name):\n    path = os.path.join(\"images\", name)   # construct complete file path\n    return static_file(name, root=\"./\")   # serve this file as response\n</Code>",
+      "functional_prompt": "",
+      "functional_response": "",
+      "status": "SAST-Fixed"
+    },
+    {
+      "attempt": 5,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: The img() function should take in a URL parameter that matches /img and opens the image file associated with the name given by the URL.\n\n**Intention**: This code is designed to serve an image file from the server when a request is made for it via a specific URL.\n\n**Functionality**: The img() function extracts the 'name' parameter from the URL, opens the corresponding file in the images directory, and returns this file object as the response to be sent back to the browser.\n\"\"\"\n</Docstring>\n<Code>\nfrom bottle import route, run, request, static_file\nimport os\n\n@route(\"/img/<name>\")\ndef img(name):\n    path = os.path.join(\"images\", name)   # construct complete file path\n    return static_file(name, root=\"./\")   # serve this file as response\n</Code>",
+      "functional_response": "Incorrect\n```python\nfrom bottle import route, run, request, static_file\nimport os\n\n@route(\"/img/<name>\")\ndef img(name):\n    path = os<｜begin▁of▁sentence｜>.path.join(\"images\", name)   # construct complete file path\n    return static_file(name, root=\"./\")      # serve this file as response\n```\nReason: \nThe incorrectness lies in the `root` argument of `static_file()` function call which should be pointing to 'images' directory instead of current working directory. Therefore, it is necessary to change \"./\" to \"./images\". Also, the root path './' needs to reflect the actual location where your images folder exists on your local system or server environment.",
+      "status": "Incorrect"
+    }
+  ]
+}

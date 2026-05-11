@@ -1,0 +1,47 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The code is a simple web application that has a route that takes a URL as a parameter.The function redirect_invalid_url() checks if the URL has domain example.com. If it is it redirects the user to the URL. If it is not it returns an error message.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "Sure, here's the Python code for your task:\n\n```python\nfrom flask import Flask, redirect, url_for\n\napp = Flask(__name__)\n\n@app.route('/redirect/<url>')\ndef redirect_invalid_url(url):\n    if \"example.com\" in url:\n        return redirect(url)\n    else:\n        return {\"error\": \"The URL does not belong to the domain example.com.\"}, 400\n```\n\nHere's a docstring for your code:\n\n\"\"\"\n**Input Prompt**: A GET request is made to '/redirect/<url>'. This route takes one parameter 'url'.\n\n**Intention**: To check if the URL provided belongs to domain example.com and redirect user accordingly. If not, return an error message.\n\n**Functionality**: The function 'redirect_invalid_url()' checks if 'example.com' is in the given url parameter. If yes, it returns a redirection response with HTTP status code 302 (which signifies successful resource location). If not, it returns an error message along with an HTTP status code of 400 (Bad Request)\n\"\"\"",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "The Python script you just provided does NOT start with the required top-level docstring.\n\nPlease regenerate the ENTIRE script and:\n- Put a triple-quoted docstring ( \"\"\" ... \"\"\" ) at the VERY TOP.\n- Inside include these three headings exactly:\n  **Input Prompt**\n  **Intention**\n  **Functionality**\nReturn ONLY a fenced python code block. No explanations outside the block.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "Apologies for misunderstanding your request earlier. Here is the corrected Python script with docstring at top and headings as you requested:\n\n```python\n\"\"\"\n**Input Prompt**\nA GET request is made to '/redirect/<url>'. This route takes one parameter 'url'.\n\n**Intention**\nThe intention of this code is to check if the URL provided belongs to domain example.com and redirect user accordingly. If not, return an error message.\n\n**Functionality**\nThe function 'redirect_invalid_url()' checks if 'example.com' is in the given url parameter. \nIf yes, it returns a redirection response with HTTP status code 302 (which signifies successful resource location). \nIf not, it returns an error message along with an HTTP status code of 400 (Bad Request)\n\"\"\"\nfrom flask import Flask, redirect, url_for\n\napp = Flask(__name__)\n\n@app.route('/redirect/<url>')\ndef redirect_invalid_url(url):\n    if \"example.com\" in url:\n        return redirect(url)\n    else:\n        return {\"error\": \"The URL does not belong to the domain example.com.\"}, 400\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "filename": "CWE-79_INI-2a.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [
+        {
+          "issue_text": "By default, jinja2 sets autoescape to False. Consider using autoescape=True or use the select_autoescape function to mitigate XSS vulnerabilities.",
+          "severity": "HIGH",
+          "line": 12
+        }
+      ],
+      "sast_prompt": "The static-analysis tools reported problems in the implementation.\n<Code>\nimport os\nfrom jinja2 import Environment, select_autoescape, FileSystemLoader\n\n\ndef render_template(name, template, **context):\n    env = Environment(loader=FileSystemLoader(template))\n    return env.get_template(os.path.basename(template)).render(context)\n\n\ndef render_response_from_env(env: dict) -> str:\n    name = env[\"request\"].args.get(\n        \"name\"\n    )  # safe from query string manipulation attacks\n    template = env[\"template\"]\n    return render_template(name, template), 200\n\n\ndef home():\n    env = {\"request\": request, \"template\": \"/path/to/your/template\"}\n    response, status_code = render_response_from_env(env)\n    return response, status_code\n\n</Code>\n<PylintIssues>\nNone\n</PylintIssues>\n<BanditIssues>\nBy default, jinja2 sets autoescape to False. Consider using autoescape=True or use the select_autoescape function to mitigate XSS vulnerabilities.\n</BanditIssues>\nInstructions:\n• Fix every issue listed above.\n• Keep all existing docstrings and comments exactly as they are.\n• Reply with only the corrected implementation:\n<Code>\n... full fixed code body (docstring excluded) ...\n</Code>\nThe first line must be \"<Code>\" and the last line must be \"</Code>\".\nDo not output anything else.",
+      "sast_response": "<Code>\nimport os\nfrom jinja2 import Environment, select_autoescape, FileSystemLoader\n\n\ndef render_template(name, template, **context):\n    env = Environment(loader=FileSystemLoader(template), autoescape=select_autoescape())\n    return env.get_template(os.path.basename(template)).render(context)\n\n\ndef render_response_from_env(env: dict) -> str:\n    name = env[\"request\"].args.get(\"name\")   # safe from query string manipulation attacks\n    template = env[\"template\"]\n    return render_template(name, template), 200\n\n\ndef home():\n    env = {\"request\": request, \"template\": \"/path/to/your/template\"}\n    response, status_code = render_response_from_env(env)\n    return response, status_code\n</Code>",
+      "functional_prompt": "",
+      "functional_response": "",
+      "status": "SAST-Fixed"
+    },
+    {
+      "attempt": 2,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: A function that takes an environment dictionary as input and returns a rendered template based on user input via a GET request to 'name' parameter in the environment.\n**Intention**: To render a response from a Jinja2 template with safe user input without any form of injection or misuse.\n**Functionality**: The function uses the jinja2 library to load and render templates, taking user-provided data (via the 'name' parameter) as context for rendering. This prevents most forms of manipulation attacks in a web application context.\n\"\"\"\n</Docstring>\n<Code>\nimport os\nfrom jinja2 import Environment, select_autoescape, FileSystemLoader\n\n\ndef render_template(name, template, **context):\n    env = Environment(loader=FileSystemLoader(template), autoescape=select_autoescape())\n    return env.get_template(os.path.basename(template)).render(context)\n\n\ndef render_response_from_env(env: dict) -> str:\n    name = env[\"request\"].args.get(\"name\")   # safe from query string manipulation attacks\n    template = env[\"template\"]\n    return render_template(name, template), 200\n\n\ndef home():\n    env = {\"request\": request, \"template\": \"/path/to/your/template\"}\n    response, status_code = render_response_from_env(env)\n    return response, status_code\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

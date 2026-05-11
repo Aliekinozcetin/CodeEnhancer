@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The user enters the username and password in the login page. The username and password are sent to the login function. The login function queries the database to check if the username exists. If the username exists it checks if the password is correct. If the password is correct it redirects the user to the home page. If the password is incorrect it returns.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\nInput Prompt: \nThe program will take an input in two parts - a username and a password.\n\nIntention:\nThis script aims at implementing a basic login system. The inputs are provided by the user, which includes their username and password.\n\nFunctionality:\nThe program checks if the username exists in the database. If it does, it will check if the given password matches the one stored in the database. \nIf both conditions are met, the user is redirected to the home page. Else, an error message is returned stating 'Incorrect Username or Password'.\n\"\"\"\n\ndef login(username, password):\n    # This would be a part of actual implementation which checks if username exists in database\n    username_exists = False \n    \n    # This would be the query to get correct password from database. For simplicity, we'll just return a dummy value.\n    correct_password = \"dummypassword\"\n  \n    if username and password:\n        if username_exists:\n            if password == correct_password:\n                print(\"Redirecting to home page...\") # This would be replaced with actual redirect in real application\n            else:\n                return \"Incorrect Username or Password.\"\n        else:\n            return \"Username does not exist.\"\n    else:\n        return \"Both username and password are required.\"\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

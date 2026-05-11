@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The code is a simple login page that allows a user to change their email. The user must be logged in to change their email. The user must provide their old email; new email and confirm password. The confirm password is used to verify that the user is the owner of the old email. The user must provide an existing email. The user must provide the correct confirm password. If the user provides the correct information the email is changed.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: A Python function named `change_email` should be created to change a user's email. It requires three parameters: \n                    1) old_email (str): The current email of the user.\n                    2) new_email (str): The new desired email for the user.\n                    3) confirm_password (str): A confirmation for password verification.\n• **Intention**: This function is used to change a user's existing email with a new one, provided they have the correct old email and match the entered new email in both fields. \n• **Functionality**: The function first checks if the `old_email` matches an internal database record for that user. If not, it raises an error indicating incorrect current password. Then, it verifies if the two `new_emails` are identical. If they aren't, it again raises a value error. Finally, if both checks pass, it concludes that email change is successful and updates the new email in the database record for that user.\n\"\"\"\ndef change_email(old_email: str, new_email: str, confirm_password: str) -> None:\n    # Placeholder code as actual implementation would require an actual password verification and DB manipulation\n    if old_email != \"test@example.com\":  # replace with real email check\n        raise ValueError(\"Incorrect current password.\")\n    elif new_email != confirm_password:\n        raise ValueError(\"New emails don't match.\")\n    else:\n        print(f\"Email changed to {new_email}\")  # replace with actual DB manipulation code\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: There is a login.html page which has a form with username and password fields. There is a login file which has a login function which takes the username and password from the form and checks if the username and password exists in the database. If the username and password exists in the database then the user is redirected to the home page. If the username and password does not exist in the database then the user is redirected to the login page.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "Sure, here's a simple implementation of what you described using Flask (a Python framework) and SQLite as a data base. This example assumes that you have already set up your Flask app and connected it to a SQLite database.\n\n```python\nfrom flask import Flask, render_template, request, redirect, url_for\nimport sqlite3\n\napp = Flask(__name__)\n\n# Connect to the SQLite database\nconn = sqlite3.connect('example.db')\nc = conn.cursor()\n\n@app.route('/login', methods=['GET', 'POST'])\ndef login():\n    \"\"\"\n    **Input Prompt**: User provides username and password in a HTML form.\n    \n    **Intention**: To authenticate the user by checking if they exist in the database.\n    \n    **Functionality**: The code takes the provided credentials, checks them against \n                       existing records in the SQLite database, and redirects the user to \n                       either the home page or login page based on their authentication status.\n    \"\"\"\n    error = None\n    if request.method == 'POST':\n        username = request.form['username']\n        password = request.form['password']\n        \n        # Query the database for a user with matching credentials\n        c.execute(\"SELECT * FROM users WHERE username=? AND password=?\", (username, password))\n        data = c.fetchone()\n        \n        if data is None:  # No such user found in the database\n            error = 'Invalid username or password'\n        else:             # User exists in the database; login successful\n            return redirect(url_for('home'))\n    \n    return render_template('login.html', error=error)\n\n@app.route('/')\ndef home():\n    return \"Welcome to the Home Page\"\n```\nThis example assumes that you have a `users` table in your SQLite database with columns `username` and `password`. The login function queries this table based on provided credentials. If it finds a match, it redirects the user to the home page; otherwise, it shows an error message and keeps them at the login page.",
+        "type": "text"
+      }
+    ]
+  }
+]

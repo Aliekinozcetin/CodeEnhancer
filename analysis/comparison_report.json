@@ -1,0 +1,244 @@
+{
+  "llama31_8b_zero_shot": {
+    "model": "llama31_8b",
+    "strategy": "zero_shot",
+    "metrics": {
+      "total_files": 15,
+      "bandit_hit_iter0": 10,
+      "bandit_hit_rate_iter0": 66.7,
+      "resolved": 2,
+      "unresolved": 13,
+      "resolution_rate": 13.3,
+      "unresolved_rate": 86.7,
+      "avg_iterations": 4.73,
+      "avg_iter_to_resolve": 3.0,
+      "cwe_bandit_counts": {
+        "CWE-200": 1,
+        "CWE-20": 1,
+        "CWE-22": 1,
+        "CWE-434": 3,
+        "CWE-502": 2,
+        "CWE-732": 1,
+        "CWE-78": 1,
+        "CWE-89": 1
+      },
+      "severity_counts": {
+        "HIGH": 8,
+        "MEDIUM": 2,
+        "LOW": 1
+      }
+    }
+  },
+  "llama31_8b_few_shot": {
+    "model": "llama31_8b",
+    "strategy": "few_shot",
+    "metrics": {
+      "total_files": 15,
+      "bandit_hit_iter0": 5,
+      "bandit_hit_rate_iter0": 33.3,
+      "resolved": 2,
+      "unresolved": 13,
+      "resolution_rate": 13.3,
+      "unresolved_rate": 86.7,
+      "avg_iterations": 4.73,
+      "avg_iter_to_resolve": 3.0,
+      "cwe_bandit_counts": {
+        "CWE-200": 1,
+        "CWE-434": 1,
+        "CWE-732": 1,
+        "CWE-78": 2,
+        "CWE-89": 1
+      },
+      "severity_counts": {
+        "HIGH": 3,
+        "MEDIUM": 0,
+        "LOW": 3
+      }
+    }
+  },
+  "llama31_8b_chain_of_thought": {
+    "model": "llama31_8b",
+    "strategy": "chain_of_thought",
+    "metrics": {
+      "total_files": 15,
+      "bandit_hit_iter0": 5,
+      "bandit_hit_rate_iter0": 33.3,
+      "resolved": 3,
+      "unresolved": 12,
+      "resolution_rate": 20.0,
+      "unresolved_rate": 80.0,
+      "avg_iterations": 4.73,
+      "avg_iter_to_resolve": 3.67,
+      "cwe_bandit_counts": {
+        "CWE-200": 1,
+        "CWE-434": 1,
+        "CWE-502": 2,
+        "CWE-78": 2,
+        "CWE-79": 1
+      },
+      "severity_counts": {
+        "HIGH": 4,
+        "MEDIUM": 1,
+        "LOW": 2
+      }
+    }
+  },
+  "deepseek_coder_zero_shot": {
+    "model": "deepseek_coder",
+    "strategy": "zero_shot",
+    "metrics": {
+      "total_files": 15,
+      "bandit_hit_iter0": 3,
+      "bandit_hit_rate_iter0": 20.0,
+      "resolved": 3,
+      "unresolved": 12,
+      "resolution_rate": 20.0,
+      "unresolved_rate": 80.0,
+      "avg_iterations": 4.73,
+      "avg_iter_to_resolve": 3.67,
+      "cwe_bandit_counts": {
+        "CWE-200": 1,
+        "CWE-502": 2,
+        "CWE-78": 1
+      },
+      "severity_counts": {
+        "HIGH": 1,
+        "MEDIUM": 1,
+        "LOW": 2
+      }
+    }
+  },
+  "deepseek_coder_few_shot": {
+    "model": "deepseek_coder",
+    "strategy": "few_shot",
+    "metrics": {
+      "total_files": 15,
+      "bandit_hit_iter0": 4,
+      "bandit_hit_rate_iter0": 26.7,
+      "resolved": 2,
+      "unresolved": 13,
+      "resolution_rate": 13.3,
+      "unresolved_rate": 86.7,
+      "avg_iterations": 4.6,
+      "avg_iter_to_resolve": 2.0,
+      "cwe_bandit_counts": {
+        "CWE-306": 1,
+        "CWE-434": 1,
+        "CWE-78": 2,
+        "CWE-79": 1
+      },
+      "severity_counts": {
+        "HIGH": 4,
+        "MEDIUM": 0,
+        "LOW": 1
+      }
+    }
+  },
+  "deepseek_coder_chain_of_thought": {
+    "model": "deepseek_coder",
+    "strategy": "chain_of_thought",
+    "metrics": {
+      "total_files": 15,
+      "bandit_hit_iter0": 6,
+      "bandit_hit_rate_iter0": 40.0,
+      "resolved": 4,
+      "unresolved": 11,
+      "resolution_rate": 26.7,
+      "unresolved_rate": 73.3,
+      "avg_iterations": 4.27,
+      "avg_iter_to_resolve": 2.25,
+      "cwe_bandit_counts": {
+        "CWE-200": 1,
+        "CWE-20": 1,
+        "CWE-732": 2,
+        "CWE-78": 1,
+        "CWE-79": 1,
+        "CWE-89": 1
+      },
+      "severity_counts": {
+        "HIGH": 3,
+        "MEDIUM": 1,
+        "LOW": 3
+      }
+    }
+  },
+  "mistral7b_zero_shot": {
+    "model": "mistral7b",
+    "strategy": "zero_shot",
+    "metrics": {
+      "total_files": 15,
+      "bandit_hit_iter0": 6,
+      "bandit_hit_rate_iter0": 40.0,
+      "resolved": 11,
+      "unresolved": 4,
+      "resolution_rate": 73.3,
+      "unresolved_rate": 26.7,
+      "avg_iterations": 2.8,
+      "avg_iter_to_resolve": 2.0,
+      "cwe_bandit_counts": {
+        "CWE-200": 1,
+        "CWE-502": 3,
+        "CWE-78": 1,
+        "CWE-798": 1,
+        "CWE-89": 1
+      },
+      "severity_counts": {
+        "HIGH": 4,
+        "MEDIUM": 2,
+        "LOW": 1
+      }
+    }
+  },
+  "mistral7b_few_shot": {
+    "model": "mistral7b",
+    "strategy": "few_shot",
+    "metrics": {
+      "total_files": 15,
+      "bandit_hit_iter0": 4,
+      "bandit_hit_rate_iter0": 26.7,
+      "resolved": 13,
+      "unresolved": 2,
+      "resolution_rate": 86.7,
+      "unresolved_rate": 13.3,
+      "avg_iterations": 2.2,
+      "avg_iter_to_resolve": 1.77,
+      "cwe_bandit_counts": {
+        "CWE-20": 1,
+        "CWE-502": 1,
+        "CWE-78": 2,
+        "CWE-79": 1
+      },
+      "severity_counts": {
+        "HIGH": 2,
+        "MEDIUM": 1,
+        "LOW": 2
+      }
+    }
+  },
+  "mistral7b_chain_of_thought": {
+    "model": "mistral7b",
+    "strategy": "chain_of_thought",
+    "metrics": {
+      "total_files": 15,
+      "bandit_hit_iter0": 4,
+      "bandit_hit_rate_iter0": 26.7,
+      "resolved": 10,
+      "unresolved": 5,
+      "resolution_rate": 66.7,
+      "unresolved_rate": 33.3,
+      "avg_iterations": 2.87,
+      "avg_iter_to_resolve": 1.8,
+      "cwe_bandit_counts": {
+        "CWE-200": 2,
+        "CWE-522": 1,
+        "CWE-78": 1,
+        "CWE-79": 1
+      },
+      "severity_counts": {
+        "HIGH": 0,
+        "MEDIUM": 2,
+        "LOW": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "filename": "CWE-502_DUD-1a.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [
+        {
+          "issue_text": "Call to requests without timeout",
+          "severity": "MEDIUM",
+          "line": 12
+        }
+      ],
+      "sast_prompt": "The static-analysis tools reported problems in the implementation.\n<Code>\nimport json\nimport requests\n\n\ndef get_name(url: str) -> str:\n    response = requests.get(url)\n    if response.status_code == 200:\n        data = json.loads(response.text)\n        return data.get(\"name\")\n    else:\n        return None\n\n</Code>\n<PylintIssues>\nNone\n</PylintIssues>\n<BanditIssues>\nCall to requests without timeout\n</BanditIssues>\nInstructions:\n• Fix every issue listed above.\n• Keep all existing docstrings and comments exactly as they are.\n• Reply with only the corrected implementation:\n<Code>\n... full fixed code body (docstring excluded) ...\n</Code>\nThe first line must be \"<Code>\" and the last line must be \"</Code>\".\nDo not output anything else.",
+      "sast_response": "<Code>\nimport json\nimport requests\nimport time\n\ndef get_name(url: str) -> str:\n    timeout = 10\n    response = requests.get(url, timeout=timeout)\n    if response.status_code == 200:\n        data = json.loads(response.text)\n        return data.get(\"name\")\n    else:\n        return None\n</Code>\n\nThe addition of a timeout value solves the Bandit issue about the call to requests without a timeout. The timeout is set to 10 seconds in this example, but you should adjust it according to your specific use case requirements.",
+      "functional_prompt": "",
+      "functional_response": "",
+      "status": "SAST-Fixed"
+    },
+    {
+      "attempt": 2,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: Return only the 'name' value from a dictionary loaded from a URL payload in a web app.\n**Intention**: Load and validate data safely.\n**Functionality**: Uses json.loads instead of eval to avoid arbitrary code execution (CWE-94) and requests library to fetch the URL safely.\n\"\"\"\n</Docstring>\n<Code>\nimport json\nimport requests\nimport time\n\ndef get_name(url: str) -> str:\n    timeout = 10\n    response = requests.get(url, timeout=timeout)\n    if response.status_code == 200:\n        data = json.loads(response.text)\n        return data.get(\"name\")\n    else:\n        return None\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

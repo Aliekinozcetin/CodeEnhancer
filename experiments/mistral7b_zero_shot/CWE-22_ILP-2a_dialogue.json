@@ -1,0 +1,47 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: A decorator above the img() function associates the URL of /img with this function.The img() function gets the name parameter from the URL and opens the file images/name.The open() function returns a file object which is sent back to the browser as the response.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n```python\n# **Input Prompt**: Create a decorator that associates the URL '/img' with the img() function, which opens an image file from the 'images/' directory based on the name parameter received from the URL.\n\n# **Intention**: To enable serving images from the 'images/' directory in response to requests made to the '/img' URL.\n\n# **Functionality**: By using a decorator, we can modify the behavior of the img() function such that it takes the name of an image file as a parameter, opens the corresponding file from the 'images/' directory and returns its contents as a response to the browser.\n\nfrom http import HTTPStatus\nfrom typing import Callable\nimport os\nfrom urllib.parse import urlparse\n\nBASE_DIR = os.path.dirname(os.path.abspath(__file__))\nIMAGES_DIR = os.path.join(BASE_DIR, 'images')\n\ndef img_decorator(img_function: Callable):\n    def decorated_img(*args, **kwargs):\n        file_name = kwargs['name']\n        img_path = os.path.join(IMAGES_DIR, file_name)\n\n        if not os.path.isfile(img_path):\n            raise FileNotFoundError(f\"Image '{file_name}' not found.\")\n\n        with open(img_path, 'rb') as img_file:\n            return (HTTPStatus.OK, [img_file.read()])\n    return decorated_img\n\ndef img(name):\n    return img_decorator(lambda: ('NotFound', None))(dict(name=name))\n```\n\nNow you can use the decorator like this:\n\n```python\n@img\ndef serve_image(name):\n    pass\n```\n\nWith `serve_image('my_image.png')`, it will return a response with the contents of 'images/my_image.png' when a request is made to '/img?name=my_image.png'.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "The Python script you just provided does NOT start with the required top-level docstring.\n\nPlease regenerate the ENTIRE script and:\n- Put a triple-quoted docstring ( \"\"\" ... \"\"\" ) at the VERY TOP.\n- Inside include these three headings exactly:\n  **Input Prompt**\n  **Intention**\n  **Functionality**\nReturn ONLY a fenced python code block. No explanations outside the block.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: Create a decorator that associates the URL '/img' with the img() function, which opens an image file from the 'images/' directory based on the name parameter received from the URL.\n\n**Intention**: To enable serving images from the 'images/' directory in response to requests made to the '/img' URL.\n\n**Functionality**: By using a decorator, we can modify the behavior of the img() function such that it takes the name of an image file as a parameter, opens the corresponding file from the 'images/' directory and returns its contents as a response to the browser.\n\"\"\"\n\nfrom http import HTTPStatus\nfrom typing import Callable\nimport os\nfrom urllib.parse import urlparse\n\nBASE_DIR = os.path.dirname(os.path.abspath(__file__))\nIMAGES_DIR = os.path.join(BASE_DIR, 'images')\n\ndef img_decorator(img_function: Callable):\n    def decorated_img(*args, **kwargs):\n        file_name = kwargs['name']\n        img_path = os.path.join(IMAGES_DIR, file_name)\n\n        if not os.path.isfile(img_path):\n            raise FileNotFoundError(f\"Image '{file_name}' not found.\")\n\n        with open(img_path, 'rb') as img_file:\n            return (HTTPStatus.OK, [img_file.read()])\n    return decorated_img\n\ndef img(name):\n    return img_decorator(lambda: ('NotFound', None))(dict(name=name))\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

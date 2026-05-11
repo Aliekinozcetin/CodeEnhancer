@@ -1,0 +1,15 @@
+{
+  "filename": "CWE-434_UUF-3b.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: Upload files safely to the server.\n**Intention**: Store user-uploaded files securely without risk of malicious content or attacks.\n**Functionality**: Uses safe file operations and a whitelist for allowed extensions.\n\"\"\"\n</Docstring>\n<Code>\nimport os\nimport mimetypes\nimport hashlib\n\nALLOWED_EXTENSIONS = {\"pdf\", \"docx\", \"txt\"}\n\n\ndef allowed_file(filename):\n    return \".\" in filename and filename.rsplit(\".\", 1)[1].lower() in ALLOWED_EXTENSIONS\n\n\ndef save_uploaded_file(file, destination):\n    hashed_filename = hashlib.sha256(file).hexdigest()\n    safe_filename = f\"{hashed_filename}.{file.filename.split('.')[-1]}\"\n    extension = file.filename.split(\".\")[-1]\n    destination_path = os.path.join(destination, safe_filename)\n    with open(destination_path, \"wb\") as outfile:\n        outfile.write(file.read())\n    return safe_filename\n\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

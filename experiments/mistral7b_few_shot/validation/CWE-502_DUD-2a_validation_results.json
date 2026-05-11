@@ -1,0 +1,15 @@
+{
+  "filename": "CWE-502_DUD-2a.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: Retrieve temperature data for a specific location and date from the database.\n**Intention**: Safely access temperature records in the database.\n**Functionality**: Uses parameterized queries with a connection pool to improve performance and prevent SQL injection.\n\"\"\"\n</Docstring>\n<Code>\nimport json\nfrom sqlalchemy import create_engine, text\nfrom sqlalchemy.pool import QueuePool\n\n\ndef temperature_for_location(payload: str) -> dict:\n    data = json.loads(payload)\n    engine = create_engine(\n        \"sqlite:///Sensor.db\",\n        connect_args={\"check_same_thread\": False},\n        poolclass=QueuePool,\n    )\n    with engine.connect() as conn:\n        result = conn.execute(\n            text(\n                \"SELECT temperature FROM temperatures WHERE latitude = :latitude AND longitude = :longitude AND date = :date\"\n            ),\n            {\n                \"latitude\": data[\"latitude\"],\n                \"longitude\": data[\"longitude\"],\n                \"date\": data[\"date\"],\n            },\n        )\n        row = result.fetchone()\n        if row:\n            temperature = row[0]\n            return {\"temperature\": temperature}\n        else:\n            return {\"error\": \"No temperature found for the given location and date.\"}\n\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: A decorator is used to bind a function to a URL.The function ping() is called when the URL <url> ping is requested.The URL to ping is stored as a variable \"url\". The ping command is run using the system command \"ping\". The output of the ping command is stored in the variable \"pong\". If the ping command returns 0 the URL is alive.Else the URL is not alive.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: Restate the prompt clearly.\nA decorator is used to bind a function to a URL. The function ping() is called when the URL <url> ping is requested. \nThe URL to ping is stored as a variable \"url\". The ping command is run using the system command \"ping\". \nThe output of the ping command is stored in the variable \"pong\". If the ping command returns 0, the URL is alive. Else the URL is not alive.\n\n**Intention**: State the purpose of the code.\nThe main intention of this script is to create a system that can check the status of a URL by using the Ping Command in Python. It will be used for server availability monitoring or troubleshooting network issues.\n\n**Functionality**: Describe briefly how the code solves the task.\nThis code uses the os module's popen function to run the system command \"ping\". The output is stored as a string in the variable 'pong'. If '0' is in the pong string, this means that the URL is alive and accessible from the current network location. Else it signifies that the URL might be dead or not responding currently.\n\"\"\"\nimport os\nfrom flask import Flask\napp = Flask(__name__)\n\n@app.route('/ping/<url>')\ndef ping(url):\n    pong = os.popen(\"ping -c 1 \" + url).read() # run the system command and store the output in 'pong'\n    \n    if '0 received' in pong: # If '0 received' is present it means URL is not alive/responsive\n        return f\"{url} seems to be dead or not responding currently.\" \n    else:                     # Else '0 received' isn't there, which means URL is live\n        return f\"{url} appears to be Alive and well.\"  \n```",
+        "type": "text"
+      }
+    ]
+  }
+]

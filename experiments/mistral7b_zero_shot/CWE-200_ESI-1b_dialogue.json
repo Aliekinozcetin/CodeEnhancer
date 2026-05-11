@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: There is a login.html page which has a form with username and password fields. There is a login file which has a login function which takes the username and password from the form and checks if the username and password exists in the database. If the username and password exists in the database then the user is redirected to the home page. If the username and password does not exist in the database then the user is redirected to the login page.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: The task is to write Python code for a simple web application that handles user authentication by checking the provided credentials against a database, and if they match, redirecting the user to the home page. Otherwise, redirecting them back to the login page.\n\n**Intention**: Implement a login functionality that ensures secure access to the home page for authorized users while denying access to unauthorized ones.\n\n**Functionality**: The script uses Flask web framework and SQLite database to create a simple login system. When the user submits a form in login.html, their credentials are sent to the server where they are verified against a database. If the credentials match an entry in the database, the user is redirected to the home page; otherwise, they are redirected back to the login page.\n\n\"\"\"\nfrom flask import Flask, render_template, request, redirect, url_for\nimport sqlite3\n\napp = Flask(__name__)\n\ndef init_db():\n    conn = sqlite3.connect('users.db')\n    c = conn.cursor()\n    c.execute('''CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)''')\n    conn.commit()\n    return conn\n\nconn = init_db()\n\n@app.route('/', methods=['GET'])\ndef login():\n    return render_template('login.html')\n\n@app.route('/login', methods=['POST'])\ndef authenticate():\n    username = request.form['username']\n    password = request.form['password']\n\n    c = conn.cursor()\n    c.execute(\"SELECT COUNT(*) FROM users WHERE username=? AND password=?\", (username, password))\n    count = c.fetchone()[0]\n\n    if count > 0:\n        return redirect(url_for('home'))\n    else:\n        return redirect(url_for('login'))\n\n@app.route('/home')\ndef home():\n    # Add any code for the home page content or functionality here\n    pass\n\nif __name__ == '__main__':\n    app.run(debug=True)\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: It creates a web app. It creates a route called /api. It gets the payload parameter from the URL. It loads the payload into a dictionary. It returns the name value from the dictionary.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: Create a web app that has a route '/api' which takes a payload parameter from the URL, loads it into a dictionary and returns the 'name' value from the dictionary.\n\n**Intention**: To create a simple REST API endpoint that accepts a payload as a parameter in the URL, processes it, and returns a specific value (in this case, the 'name' value).\n\n**Functionality**: The code below creates a Flask web app with one route ('/api'). When a request is made to this route with a query parameter 'payload', the app will parse the payload as JSON, load it into a dictionary, and return the 'name' value from that dictionary.\n\n\"\"\"\nfrom flask import Flask, jsonify, request\n\napp = Flask(__name__)\n\n@app.route('/api', methods=['GET'])\ndef get_name():\n    payload = request.args.get('payload')\n    if payload:\n        data = json.loads(payload)\n        name = data.get('name')\n        return jsonify({'name': name})\n    else:\n        return jsonify({'error': 'No payload provided.'}), 400\n\nif __name__ == '__main__':\n    app.run(debug=True)\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

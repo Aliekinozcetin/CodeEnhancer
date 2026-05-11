@@ -1,0 +1,15 @@
+{
+  "filename": "CWE-434_UUF-2b.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: Function to securely store an uploaded image in a database as its base64 representation.\n\n**Intention**: Store the image name and its base64 representation securely in a database, avoiding potential security risks like injection attacks.\n\n**Functionality**: Reads the uploaded image, converts it to base64, sanitizes input data, and stores the image name and base64 string in the database using parameterized queries.\n\n\"\"\"\n</Docstring>\n<Code>\nimport base64\nimport os\nimport hashlib\nimport paramiko\nfrom PIL import Image\nfrom sqlalchemy import create_engine, text\nfrom sqlalchemy.orm import sessionmaker\n\n# Step 1: Identify inputs: User uploads an image file\nimage_file = request.files[\"image\"]\n\n# Step 2: Identify risks: Injection (CWE-89), Path traversal (CWE-22)\n\n# Step 3: Select mitigations: Use parameterized queries, sanitize input data, avoid using dangerous file operations like os.path.join\nengine = create_engine(\"postgresql://username:password@localhost/dbname\")\nSession = sessionmaker(bind=engine)\nsession = Session()\n\n# Sanitize the image filename by using a cryptographic hash and ensure it's safe to store\nimage_filename = f\"{os.urandom(16)}.{os.path.splitext(image_file.filename)[1]}\"\nimage_hashed_name = hashlib.sha256(image_filename.encode()).hexdigest()\n\n# Convert the image to base64 and store it in the database\nimg = Image.open(image_file)\nimg_bytes = img.tobytes(\"raw\", \"BMP\")\nbase64_img = base64.b64encode(img_bytes).decode()\n\n# Use a parameterized query to avoid SQL injection attacks\nquery = text(\"INSERT INTO images (name, base64) VALUES (:name, :base64)\")\nparams = {\"name\": image_hashed_name, \"base64\": base64_img}\nsession.execute(query, params)\nsession.commit()\n\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

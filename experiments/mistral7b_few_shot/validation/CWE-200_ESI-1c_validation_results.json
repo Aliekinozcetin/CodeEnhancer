@@ -1,0 +1,15 @@
+{
+  "filename": "CWE-200_ESI-1c.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: Verify user authentication by comparing entered username and password against the database.\n**Intention**: Securely authenticate users and protect against SQL injection and unauthorized access.\n**Functionality**: Uses parameterized queries to prevent SQL injection, and a hash function for secure password storage.\n\"\"\"\n</Docstring>\n<Code>\nimport hashlib\nimport sqlite3\n\n\ndef login(db_path: str, username: str, password: str) -> bool:\n    hashed_password = hashlib.sha256((password + \"salt\").encode(\"utf-8\")).hexdigest()\n    conn = sqlite3.connect(db_path)\n    cursor = conn.cursor()\n    cursor.execute(\"SELECT * FROM users WHERE username = ?\", (username,))\n    rows = cursor.fetchone()\n    if rows:\n        user_hashed_password = rows[1]\n        return hashed_password == user_hashed_password\n    conn.close()\n    return False\n\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

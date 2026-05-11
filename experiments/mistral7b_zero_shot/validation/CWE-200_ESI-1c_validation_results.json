@@ -1,0 +1,15 @@
+{
+  "filename": "CWE-200_ESI-1c.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: User enters a username and password in the login page, which are sent to the login function.\n\n**Intention**: The code aims to verify the entered username and password with the records stored in the database, and if they match, redirect the user to the home page.\n\n**Functionality**: It uses a hypothetical Database object for querying user credentials from the database. If the entered username exists and the password matches, it redirects the user to the home page using `redirect` function (assuming Flask is being used).\n\nNote: This code assumes that you have the necessary Database interaction setup. In this example, I've used a mock database for simplicity.\n\"\"\"\n</Docstring>\n<Code>\nfrom flask import Flask, render_template, redirect, request, url_for\nimport mock_database\n\napp = Flask(__name__)\n\n\n@app.route(\"/login\", methods=[\"GET\", \"POST\"])\ndef login():\n    if request.method == \"POST\":\n        username = request.form[\"username\"]\n        password = request.form[\"password\"]\n\n        if mock_database.user_exists(username):\n            if mock_database.check_password(username, password):\n                return redirect(url_for(\"home\"))\n\n    return render_template(\"login.html\")\n\n\n@app.route(\"/\")\ndef home():\n    return \"Welcome to the Home Page!\"\n\n\nif __name__ == \"__main__\":\n    app.run()\n\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

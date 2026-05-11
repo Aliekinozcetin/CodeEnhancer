@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The code is a simple web application that allows users to upload files to the server.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\nInput Prompt: A user wants to be able to upload files through a web application on the server.\nIntention: This Python script serves as an API for file uploads in Flask, allowing users to send files from their client-side interface (such as a React frontend) to this server-side script which will handle saving these files into our designated directory.\nFunctionality: The application utilizes the 'send_from_directory' function provided by Flask, enabling it to save file uploads directly to specified directories. It uses the secure_filename method from Werkzeug Security utility package for sanitizing filename and making sure that a user cannot attempt a path traversal by providing a “dot-dot-slash” (../) in the uploaded filename.\n\"\"\"\nfrom flask import Flask, request, send_from_directory\nfrom werkzeug.utils import secure_filename\nimport os\n\napp = Flask(__name__)\n\n# This is the directory where users' files will be saved on the server.\nUPLOAD_FOLDER = 'uploads/'\napp.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER\n\n@app.route('/file-upload', methods=['POST'])\ndef upload_file():\n    file = request.files['the_file']\n    filename = secure_filename(file.filename)\n    if not os.path.exists(UPLOAD_FOLDER):  # Create directory if doesn't exist already\n        os.makedirs(UPLOAD_FOLDER)\n    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))\n    return 'File uploaded successfully.'\n\n@app.route('/uploads/<filename>')\ndef uploaded_file(filename):\n    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

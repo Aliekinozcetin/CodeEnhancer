@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: A decorator is used to bind a function to a URL.The function ping() is called when the URL <url> ping is requested.The URL to ping is stored as a variable \"url\". The ping command is run using the system command \"ping\". The output of the ping command is stored in the variable \"pong\". If the ping command returns 0 the URL is alive.Else the URL is not alive.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: Write a Python decorator that binds a function to a URL,\ncalls the function when the URL 'ping' is requested, and determines if the URL is alive or not based on the ping command.\n\n**Intention**: The intention of this code is to create a decorator for a function that checks the status (alive or not) of a URL by executing the ping command and interpreting its return value.\n\n**Functionality**: The decorator wraps around the target function, storing the URL in a variable and overriding the 'ping' request to execute the function and check if the ping command returns 0 (indicating the URL is alive). If the ping command does not return 0, it means the URL is not alive.\n\n\"\"\"\n\nimport os\nfrom functools import wraps\n\ndef url_decorator(url):\n    def wrapper(func):\n        @wraps(func)\n        def decorated(*args, **kwargs):\n            if args[0] == 'ping':\n                status = os.system('ping -c 1 ' + url)\n                return int(status // 256) == 0\n            else:\n                return func(*args, **kwargs)\n        return decorated\n    return wrapper\n\n# Example usage:\n@url_decorator('<your-url-here>')\ndef ping():\n    pass\n\n# To check the URL status:\nprint(ping('ping'))\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

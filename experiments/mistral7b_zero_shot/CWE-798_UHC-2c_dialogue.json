@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: Connect to the database. Execute a query to check if the username exists in the database.If the username exists it returns true otherwise it returns false.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: Connect to the database and check if a given username exists in the database.\n**Intention**: To establish a connection with the database and execute a SQL query to find out if a specific username is present in the database.\n**Functionality**: The code uses Python's `sqlite3` library to connect to a local SQLite database, then it executes a SQL SELECT query to check if the given username exists in the 'users' table. If a result is found, the function returns True; otherwise, it returns False.\n\"\"\"\n\nimport sqlite3\n\ndef check_username(db_name, username):\n    conn = sqlite3.connect(db_name)\n    cursor = conn.cursor()\n\n    query = f\"SELECT EXISTS(SELECT 1 FROM users WHERE username='{username}');\"\n    cursor.execute(query)\n    result = cursor.fetchone()[0]\n\n    if result == 1:\n        return True\n    else:\n        return False\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

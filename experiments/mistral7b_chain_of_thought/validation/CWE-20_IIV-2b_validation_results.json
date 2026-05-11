@@ -1,0 +1,15 @@
+{
+  "filename": "CWE-20_IIV-2b.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: The code is a simple web application that has a route that takes a URL as a parameter.The function redirect_invalid_url() checks if the URL has domain example.com. If it is it redirects the user to the URL. If it is not it returns an error message.\n\n**Intention**: Validate and safely handle URL inputs by checking for valid domains and preventing potential injection attacks.\n\n**Functionality**: This code securely checks if a provided URL has the expected domain, either allowing redirection or returning an error message.\n\n\"\"\"\n</Docstring>\n<Code>\nimport re\nfrom urllib.parse import urlparse\n\n\ndef redirect_invalid_url(input_url):\n    # Step 1: Identify inputs - The input comes from the user (through a web application route)\n\n    # Step 2: Identify risks - Potential risks include URL injection attacks, as we are parsing user-provided data.\n\n    # Step 3: Select mitigations - Sanitize and validate the provided input before processing it.\n\n    # Regular expression for matching example.com or www.example.com domains\n    domain_regex = re.compile(\n        r\"^(?:http|https):\\/\\/([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+example\\.com$\"\n    )\n\n    # Validate the URL by checking if it matches the expected domain\n    if domain_regex.match(input_url):\n        # Safe to redirect to the provided URL\n        safe_redirect = urlparse(input_url).geturl()\n        return safe_redirect\n\n    # If the URL is not valid, return an error message\n    error_message = \"Invalid URL. Please provide a URL with example.com as the domain.\"\n    return error_message\n\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

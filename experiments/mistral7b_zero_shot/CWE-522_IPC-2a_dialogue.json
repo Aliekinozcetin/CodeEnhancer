@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The user enters a username and password. The password is hashed using a salt. The username and hashed password are inserted into the database.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: User enters a username and password, which are then stored in the database after hashing the password with a salt.\n\n**Intention**: This code aims to securely store user credentials by first hashing the password using a salt before storing it in the database.\n\n**Functionality**: The script takes user input for a username and password, generates a salt, hashes the password with the salt, and stores both the hashed password and the username in a database.\n\n\"\"\"\n\nimport bcrypt\nimport sqlite3\n\ndef create_conn():\n    conn = sqlite3.connect('users.db')\n    c = conn.cursor()\n    return conn, c\n\ndef setup_database(c):\n    c.execute('''CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT)''')\n\ndef get_salt():\n    return bcrypt.gensalt()\n\ndef hash_password(password, salt):\n    return bcrypt.hashpw(password.encode(), salt).decode()\n\ndef store_user(conn, c, username, hashed_password):\n    c.execute(\"INSERT INTO users VALUES (?,?)\", (username, hashed_password))\n    conn.commit()\n\ndef main():\n    user = input('Enter your username: ')\n    password = getpass('Enter your password: ')\n    salt = get_salt()\n    hashed_password = hash_password(password, salt)\n    conn, c = create_conn()\n    setup_database(c)\n    store_user(conn, c, user, hashed_password)\n    print('User account created successfully.')\n    conn.close()\n\nif __name__ == \"__main__\":\n    main()\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

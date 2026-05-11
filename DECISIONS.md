@@ -128,6 +128,16 @@ _(Şu an bekleyen karar yok)_
 
 ---
 
+### #010 — Mid-Phase Rapor Formatı
+**Tarih:** 2026-05-11
+**Durum:** ✅ Kesinleşti
+**Karar:** Mid-phase raporu `report/main.tex` olarak Overleaf-uyumlu LaTeX formatında yazıldı. 11 bölüm, hocanın istediği yapıya uygun. Yazı boyutu 10pt, sayfa sayısı ~4-5.
+**Gerekçe:** Hoca direktifi — belirlenen 11 bölüm yapısı takip edildi. İçindekiler tablosu kaldırıldı, metinler sıkıştırıldı.
+**Reddedilen Alternatifler:** Word/PDF doğrudan — LaTeX tercih edildi akademik standart için.
+**Etkisi:** `report/` klasörü oluşturuldu, `report/main.tex` commit edildi.
+
+---
+
 ## Reddedilen Kararlar
 
 ### #008 — Donanım Optimizasyonu (AWQ, Quantization)

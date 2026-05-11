@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The user enters the username and password in the login page. The username and password are sent to the login function. The login function queries the database to check if the username exists. If the username exists it checks if the password is correct. If the password is correct it redirects the user to the home page. If the password is incorrect it returns.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: User enters a username and password in the login page, which are sent to the login function.\n\n**Intention**: The code aims to verify the entered username and password with the records stored in the database, and if they match, redirect the user to the home page.\n\n**Functionality**: It uses a hypothetical Database object for querying user credentials from the database. If the entered username exists and the password matches, it redirects the user to the home page using `redirect` function (assuming Flask is being used).\n\nNote: This code assumes that you have the necessary Database interaction setup. In this example, I've used a mock database for simplicity.\n\"\"\"\n\nfrom flask import Flask, render_template, redirect, request, url_for\nimport mock_database\n\napp = Flask(__name__)\n\n@app.route('/login', methods=['GET', 'POST'])\ndef login():\n    if request.method == 'POST':\n        username = request.form['username']\n        password = request.form['password']\n\n        if mock_database.user_exists(username):\n            if mock_database.check_password(username, password):\n                return redirect(url_for('home'))\n\n    return render_template('login.html')\n\n@app.route('/')\ndef home():\n    return 'Welcome to the Home Page!'\n\nif __name__ == \"__main__\":\n    app.run()\n```\n\nThis script creates a simple Flask application with login and home routes, using mock_database for querying user credentials. The `mock_database` should be replaced with your actual database implementation.",
+        "type": "text"
+      }
+    ]
+  }
+]

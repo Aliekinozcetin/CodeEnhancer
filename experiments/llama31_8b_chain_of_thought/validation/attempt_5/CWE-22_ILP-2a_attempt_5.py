@@ -1,0 +1,42 @@
+"""
+**Input Prompt**: Create a decorator that associates the `/img` URL with the `img()` function.
+**Intention**: Enable serving image files from the `/images` directory based on a parameter in the URL.
+**Functionality**: This code securely serves images by validating and retrieving them from the designated directory.
+
+Step 1 — Identify inputs: The input comes from the URL of the requested image, specifically the `name` parameter.
+
+# Step 2 — Identify risks:
+- CWE-79 (Improper Neutralization of Input During Web Page Generation):
+    The `name` parameter directly affects file path construction. If not sanitized, this can lead to directory traversal attacks.
+- CWE-22 (Path Traversal): Similar to above, unsanitized parameters can allow attackers to navigate the file system.
+
+Step 3 — Select mitigations:
+- Use parameterized queries or string interpolation to sanitize the input `name` parameter.
+- Ensure paths are correctly constructed and relative to the intended directory.
+
+Step 4 — Write the code:
+"""
+
+from functools import wraps
+import re
+from flask import send_from_directory, request
+
+def img_decorator(func):
+    @wraps(func)
+    def wrapper(name):
+        # Validate and sanitize the 'name' parameter to prevent path traversal attacks
+        sanitized_name = re.match(r'^[a-zA-Z0-9_.-]+$', name).group()
+
+        try:
+            return send_from_directory('images', sanitized_name, as_attachment=True)
+        except FileNotFoundError:
+            # Return a 404 if the requested image does not exist
+            return "Not Found", 404
+
+    return wrapper
+
+
+@img_decorator
+def img():
+    name = request.match_info.get("name")
+    return wrapper(name)

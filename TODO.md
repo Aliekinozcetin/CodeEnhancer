@@ -1,5 +1,5 @@
 # TODO.md — CodeEnhancer Comparative Study
-> Son güncelleme: 2026-05-11
+> Son güncelleme: 2026-05-11 (rapor)
 > Claude Code: Bu dosyayı yaptığın her değişiklikten sonra güncelle. Tamamlananları ✅, devam edenleri 🔄, bloke olanları 🔴 ile işaretle.
 
 ---
@@ -8,26 +8,27 @@
 
 - ✅ GitHub fork URL'si CLAUDE.md'ye eklendi (https://github.com/Aliekinozcetin/CodeEnhancer)
 - ✅ Repo local'de çalışıyor: `.venv/` kurulu, `source .venv/bin/activate`
-- [ ] Tüm deneylerin validasyonunu çalıştır: `python3 code_validator.py`
-- [ ] Validation bittikten sonra: `python3 analysis/compare_results.py && python3 analysis/visualize.py`
-- [ ] Mid-phase report taslağını yaz (bölüm 1, 2, 3, 4, 5)
-- [ ] GitHub'a düzenli commit at (commit geçmişi hoca tarafından izleniyor)
+- ✅ Tüm deneylerin validasyonu tamamlandı (`python3 code_validator.py`, 9 kombinasyon × 15 prompt)
+- ✅ `compare_results.py` çalıştırıldı → `analysis/comparison_report.json` üretildi
+- ✅ `visualize.py` çalıştırıldı → 5 grafik üretildi (`analysis/figures/`)
+- ✅ Mid-phase report yazıldı: `report/main.tex` (11 bölüm, Overleaf için)
+- 🔄 GitHub'a düzenli commit at (commit geçmişi hoca tarafından izleniyor)
 
 ---
 
 ## 🧪 Deneyler — Devam Eden
 
 ### Deney Çalıştırma
-- 🔄 Tüm deneylerin validasyonu çalışıyor (`python3 code_validator.py`)
-- [ ] 150 prompt → final için
+- ✅ 15 prompt × 9 kombinasyon validasyonu tamamlandı
+- [ ] 150 prompt → final için (gece batch çalıştırma planlanıyor)
 
 ---
 
 ## 📊 Analiz & Değerlendirme
 
-- [ ] Validation tamamlanınca `compare_results.py` çalıştır → karşılaştırma tablosu
-- [ ] Validation tamamlanınca `visualize.py` çalıştır → 5 grafik
-- [ ] En az 5 başarısız örnek seç → nitel hata analizi yaz
+- ✅ `compare_results.py` çalıştırıldı → karşılaştırma tablosu üretildi
+- ✅ `visualize.py` çalıştırıldı → 5 grafik üretildi
+- [ ] En az 5 başarısız örnek seç → nitel hata analizi yaz (final için)
 
 ---
 

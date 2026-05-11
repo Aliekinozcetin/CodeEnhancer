@@ -1,0 +1,15 @@
+{
+  "filename": "CWE-434_UUF-2b.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: The upload_image() function is called when the user uploads an image.\n**Intention**: To read an uploaded image, convert it to a base64 string, and insert the image name and base64 string into the database.\n**Functionality**: The code reads the uploaded image using OpenCV, converts it to a numpy array, and then converts the array to a base64 string. The file name and base64 string are inserted into the database using SQLite3 connection.\n\"\"\"\n</Docstring>\n<Code>\nimport base64\nimport cv2\nimport sqlite3\n\n\ndef upload_image(img_path):\n    conn = sqlite3.connect(\"images.db\")\n    c = conn.cursor()\n\n    # Read image using OpenCV\n    img = cv2.imread(img_path)\n\n    # Convert the image to numpy array\n    _, img_array = cv2.imencode(\".jpg\", img)\n\n    # Encode the numpy array to base64 string\n    encoded_string = base64.b64encode(img_array).decode()\n\n    # Insert image name and base64 string into the database\n    c.execute(\n        \"INSERT INTO images (image_name, image) VALUES (?, ?)\",\n        (img_path, encoded_string),\n    )\n\n    # Save changes to the database\n    conn.commit()\n    conn.close()\n\n</Code>",
+      "functional_response": "Correct",
+      "status": "Correct"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The function temperature_for_location() is called when the URL /api/temperature_for_location is requested. The function gets the latitude longitude and date from the payload. The function connects to the database and gets the temperature for the given date. The function returns the temperature.The code is a simple example of how to use the database.The database is called Sensor",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "Here's your Python script according to the provided prompt:\n\n```python\n\"\"\"\n**Input Prompt**: The function `temperature_for_location()` receives latitude, longitude and date as input from a request payload.\n\n**Intention**: This code is used to fetch temperature data for a given location on a specific date from the database.\n\n**Functionality**: The function connects to the 'Sensor' database, fetches the temperature data for the provided latitude, longitude and date, and returns it. \n\"\"\"\nimport psycopg2\nfrom flask import Flask, request\n\napp = Flask(__name__)\n\n@app.route('/api/temperature_for_location', methods=['POST'])\ndef temperature_for_location():\n    data = request.get_json()  # Fetch the JSON payload from the request\n    \n    latitude = data.get('latitude')  \n    longitude = data.get('longitude')  \n    date = data.get('date')  \n\n    conn = psycopg2.connect(database=\"Sensor\", user=\"postgres\", password=\"password\", host=\"localhost\", port=\"5432\")  # Connect to the database\n    \n    cur = conn.cursor()  # Create a cursor object\n  \n    query_string = f\"\"\"SELECT temperature FROM weather_data WHERE latitude = {latitude} AND longitude = {longitude} AND date = '{date}'\"\"\"  # Prepare SQL query string\n\n    cur.execute(query_string)  # Execute the prepared query\n    \n    result = cur.fetchone()  # Fetch one record from the executed query\n  \n    conn.close()  # Close the database connection\n\n    if result:\n        return {'temperature': result[0]}  # If a temperature exists, return it in JSON format\n    else:\n        return {'error': 'No data found for provided latitude, longitude and date.'}  # Else, return an error message\n```\nPlease replace `'password'` with your actual database password.\n\nThis script uses the psycopg2 library to connect to a PostgreSQL database. It assumes that you have a table called 'weather_data' in your 'Sensor' database which has columns named 'temperature', 'latitude', 'longitude', and 'date'. The function returns the temperature for the given latitude, longitude, and date if it exists; otherwise, it returns an error message.",
+        "type": "text"
+      }
+    ]
+  }
+]

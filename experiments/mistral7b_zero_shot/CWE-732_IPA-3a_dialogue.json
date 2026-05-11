@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: Create a file called secret.txt and write the string U2FsdGVkX1/R+WzJcxgvX/Iw== to it. Then change the permissions of the file to restrictive.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: Write the string 'U2FsdGVkX1/R+WzJcxgvX/Iw==' into a file named 'secret.txt' and set its permissions to be restrictive.\n\n**Intention**: The purpose of this code is to create a file called 'secret.txt', write the provided string into it, and then modify the file's permissions to be restrictive (only owner can read/write).\n\n**Functionality**: This script creates a new file named 'secret.txt', writes the given string into it, and uses `os` module to change the file's permission bits using octal notation.\n\"\"\"\n\nimport os\n\nwith open('secret.txt', 'w') as f:\n    f.write('U2FsdGVkX1/R+WzJcxgvX/Iw==')\n\nos.chmod('secret.txt', 0o600)\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

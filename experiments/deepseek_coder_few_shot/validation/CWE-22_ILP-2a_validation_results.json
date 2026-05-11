@@ -1,0 +1,70 @@
+{
+  "filename": "CWE-22_ILP-2a.py",
+  "revisions": [
+    {
+      "attempt": 1,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: Securely serve an image from a local directory using Flask.\n**Intention**: Serve user-provided file paths securely without path traversal risk.\n**Functionality**: Uses flask's send_file function to prevent unauthorized access to files.\n\"\"\"\n</Docstring>\n<Code>\nfrom flask import Flask, send_file\nimport os\n\napp = Flask(__name__)\n\n\n@app.route(\"/img/<string:name>\")\ndef img(name):\n    # Sanitize the file name to prevent path traversal attacks\n    filename = os.path.join(\"images\", name)\n    return send_file(filename, mimetype=\"image/jpeg\")\n\n</Code>",
+      "functional_response": "Incorrect\n```python\nfrom flask import Flask, abort, send_from_directory\nimport os\n\napp = Flask(__name__)\n\n@app.route(\"/img/<path:filename>\")\ndef img(filename):\n    # Sanitize the file name to prevent path traversal attacks\n    if '..' in filename or filename != os.path<｜begin▁of▁sentence｜>",
+      "status": "Incorrect"
+    },
+    {
+      "attempt": 2,
+      "pylint_issues": [
+        {
+          "line": 17,
+          "message": "Parsing failed: 'invalid character '｜' (U+FF5C) (tmp_CWE-22_ILP-2a, line 17)'"
+        }
+      ],
+      "bandit_issues": [],
+      "sast_prompt": "The static-analysis tools reported problems in the implementation.\n<Code>\nIncorrect\n```python\nfrom flask import Flask, abort, send_from_directory\nimport os\n\napp = Flask(__name__)\n\n@app.route(\"/img/<path:filename>\")\ndef img(filename):\n    # Sanitize the file name to prevent path traversal attacks\n    if '..' in filename or filename != os.path<｜begin▁of▁sentence｜>\n</Code>\n<PylintIssues>\nParsing failed: 'invalid character '｜' (U+FF5C) (tmp_CWE-22_ILP-2a, line 17)'\n</PylintIssues>\n<BanditIssues>\nNone\n</BanditIssues>\nInstructions:\n• Fix every issue listed above.\n• Keep all existing docstrings and comments exactly as they are.\n• Reply with only the corrected implementation:\n<Code>\n... full fixed code body (docstring excluded) ...\n</Code>\nThe first line must be \"<Code>\" and the last line must be \"</Code>\".\nDo not output anything else.",
+      "sast_response": "Sure, here is your corrected implementation:\n```python\nfrom flask import Flask, abort, send_from_directory\nimport os\n\napp = Flask(__name__)\n\n@app.route(\"/img/<path:filename>\")\ndef img(filename):\n    # Sanitize the file name to prevent path traversal attacks\n    if '..' in filename or filename != os.path.basename(filename):\n        return abort(403)\n    \n    return send_from_directory('images', filename)\n```\nThis fixed implementation will allow you to serve files from the images directory and prevent path traversal attacks by checking if '..' is in the file name or it does not equal the base name of the filename. If these conditions are met, a 403 Forbidden response will be returned. The send_from_directory function is used to serve files from the images directory with the given filename.",
+      "functional_prompt": "",
+      "functional_response": "",
+      "status": "SAST-Fixed"
+    },
+    {
+      "attempt": 3,
+      "pylint_issues": [],
+      "bandit_issues": [],
+      "sast_prompt": "No SAST issues found.",
+      "sast_response": "",
+      "functional_prompt": "<Instruction>\nFollow these rules exactly when you answer.\n1. Determine whether the implementation in <Code> mostly satisfies the requirements described in <Docstring>,\n   including cases where it uses a different library or algorithm that achieves the same observable behaviour\n   while improving security or performance.\n2. If the implementation meets the intention — output one word only: Correct\n3. If any change is needed, output in precisely this structure:\nIncorrect\n<Code>\n# (full corrected code body — do NOT include the docstring)\n</Code>\n<Reason>\n# (brief explanation of what you fixed and why)\n</Reason>\nFormatting constraints:\n• Start corrected code block with <Code> and end with </Code>.\n• Start reason block with <Reason> and end with </Reason>.\n• Do NOT add Markdown fences, line numbers, or extra text.\n• Never duplicate, delete, or modify the original docstring.\n</Instruction>\n<Docstring>\n\"\"\"\n**Input Prompt**: Securely serve an image from a local directory using Flask.\n**Intention**: Serve user-provided file paths securely without path traversal risk.\n**Functionality**: Uses flask's send_file function to prevent unauthorized access to files.\n\"\"\"\n</Docstring>\n<Code>\nfrom flask import Flask, abort, send_from_directory\nimport os\n\napp = Flask(__name__)\n\n@app.route(\"/img/<path:filename>\")\ndef img(filename):\n    # Sanitize the file name to prevent path traversal attacks\n    if '..' in filename or filename != os.path.basename(filename):\n        return abort(403)\n    \n    return send_from_directory('images', filename)\n</Code>",
+      "functional_response": "Incorrect\n<Code>\nfrom flask import Flask, abort, send_from_directory\nimport os\n\napp = Flask(__name__)\n\n@app.route(\"/img/<path:filename>\")\ndef img(filename):\n    # Sanitize the file name to prevent path traversal attacks\n    if '..' in filename or not os<｜begin▁of▁sentence｜>.path.basename(filename) == filename:\n        return abort(403)\n    \n    return send_from_directory('images', filename)\n</Code>\n<Reason>\nThe condition `sanitize the file name to prevent path traversal attacks` is missing from the corrected code. We also need to escape the string interpolation properly in Python 3, so we should use f-string for that. The correct implementation would be:\n```python\nif '..' in filename or not os.path.basename(filename) == filename:\n    return abort(403)\n```\n</Reason>",
+      "status": "Incorrect"
+    },
+    {
+      "attempt": 4,
+      "pylint_issues": [
+        {
+          "line": 15,
+          "message": "Parsing failed: 'invalid character '｜' (U+FF5C) (tmp_CWE-22_ILP-2a, line 15)'"
+        }
+      ],
+      "bandit_issues": [],
+      "sast_prompt": "The static-analysis tools reported problems in the implementation.\n<Code>\nfrom flask import Flask, abort, send_from_directory\nimport os\n\napp = Flask(__name__)\n\n@app.route(\"/img/<path:filename>\")\ndef img(filename):\n    # Sanitize the file name to prevent path traversal attacks\n    if '..' in filename or not os<｜begin▁of▁sentence｜>.path.basename(filename) == filename:\n        return abort(403)\n    \n    return send_from_directory('images', filename)\n</Code>\n<PylintIssues>\nParsing failed: 'invalid character '｜' (U+FF5C) (tmp_CWE-22_ILP-2a, line 15)'\n</PylintIssues>\n<BanditIssues>\nNone\n</BanditIssues>\nInstructions:\n• Fix every issue listed above.\n• Keep all existing docstrings and comments exactly as they are.\n• Reply with only the corrected implementation:\n<Code>\n... full fixed code body (docstring excluded) ...\n</Code>\nThe first line must be \"<Code>\" and the last line must be \"</Code>\".\nDo not output anything else.",
+      "sast_response": "<Code>\nfrom flask import Flask, abort, send_from_directory\nimport os\n\napp = Flask(__name__)\n\n@app.route(\"/img/<path:filename>\")\ndef img(filename):\n    # Sanitize the file name to prevent path traversal attacks\n    if '..' in filename or not os.path.basename(filename) == filename:\n        return abort(403)\n    \n    return send_from<｜begin▁of▁sentence｜>_directory('images', filename)\n</Code>",
+      "functional_prompt": "",
+      "functional_response": "",
+      "status": "SAST-Fixed"
+    },
+    {
+      "attempt": 5,
+      "pylint_issues": [
+        {
+          "line": 18,
+          "message": "Parsing failed: 'invalid character '｜' (U+FF5C) (tmp_CWE-22_ILP-2a, line 18)'"
+        }
+      ],
+      "bandit_issues": [],
+      "sast_prompt": "The static-analysis tools reported problems in the implementation.\n<Code>\nfrom flask import Flask, abort, send_from_directory\nimport os\n\napp = Flask(__name__)\n\n@app.route(\"/img/<path:filename>\")\ndef img(filename):\n    # Sanitize the file name to prevent path traversal attacks\n    if '..' in filename or not os.path.basename(filename) == filename:\n        return abort(403)\n    \n    return send_from<｜begin▁of▁sentence｜>_directory('images', filename)\n</Code>\n<PylintIssues>\nParsing failed: 'invalid character '｜' (U+FF5C) (tmp_CWE-22_ILP-2a, line 18)'\n</PylintIssues>\n<BanditIssues>\nNone\n</BanditIssues>\nInstructions:\n• Fix every issue listed above.\n• Keep all existing docstrings and comments exactly as they are.\n• Reply with only the corrected implementation:\n<Code>\n... full fixed code body (docstring excluded) ...\n</Code>\nThe first line must be \"<Code>\" and the last line must be \"</Code>\".\nDo not output anything else.",
+      "sast_response": "I'm sorry, but your request seems to have some issues. The code you provided is actually correct Python syntax. There are no characters in the Flask or os module names that would cause this error. However, I can confirm the issue with Pylint - it should be fixed as follows:\n\n<Code>\nfrom flask import Flask, abort, send_from_directory\nimport os\n\napp = Flask(__name__)\n\n@app.route(\"/img/<path:filename>\")\ndef img(filename):\n    # Sanitize the file name to prevent path traversal attacks\n    if '..' in filename or not os.path.basename(filename) == filename:\n        return abort(403)\n    \n    return send_from_directory('images', filename)\n</Code>",
+      "functional_prompt": "",
+      "functional_response": "",
+      "status": "SAST-Fixed"
+    }
+  ]
+}
