@@ -98,6 +98,36 @@ _(Şu an bekleyen karar yok)_
 
 ---
 
+### #009 — Çok-Branch Karşılaştırması için Ortak Bileşenler
+**Tarih:** 2026-05-11
+**Durum:** ✅ Kesinleşti
+**Karar:** Farklı branch/takımların sonuçları akademik olarak karşılaştırılabilir olması için aşağıdaki bileşenler **birebir aynı** olmalıdır. Bu bileşenler değiştirilmeden diğer branch'e kopyalanmalı veya ortak bir repo'dan çekilmelidir.
+
+**Kesinlikle ortak tutulacaklar (kontrol değişkeni — farklılaşırsa karşılaştırma geçersiz olur):**
+
+| Dosya / Parametre | Neden kritik |
+|---|---|
+| `data/mid_phase_prompts.json` | Aynı 15 prompt, aynı ID'ler — farklı prompt seti ile model karşılaştırması anlamsızlaşır |
+| `data/select_prompts.py` | Seed=42, aynı CWE dağılımı — tekrarlanabilirlik için |
+| `prompts/zero_shot.py` | Prompt metni farklılaşırsa model performansı değil prompt performansı ölçülür |
+| `prompts/few_shot.py` | Aynı 3 örnek (CWE-78, CWE-89, CWE-502), aynı format |
+| `prompts/chain_of_thought.py` | Aynı adım yapısı (Step 1–4) |
+| `code_validator.py` — SAST mantığı ve `MAX_ATTEMPTS=5` | Farklı iterasyon limiti veya Bandit parametresi → metrikler kıyaslanamaz |
+| `analysis/compare_results.py` — metrik formülleri | Farklı hesap yöntemi → farklı sonuç, aynı veriyle |
+
+**Kasıtlı farklı olacaklar (bağımsız değişken — zaten farklı olması beklenir):**
+
+| Dosya | Neden farklı olabilir |
+|---|---|
+| `code_generator.py` — MODEL_IDS, EXPERIMENTS | Her branch farklı modelleri test ediyor |
+| `experiments/` klasörleri | Her branch kendi model çıktılarını barındırır |
+| `analysis/visualize.py` | Görsel tercih, akademik sonucu etkilemez |
+
+**Gerekçe:** Kontrol edilemeyen değişken (confound) olmadan "hangi model daha iyi güvenlik kodu üretiyor" sorusunu yanıtlamak için veri seti, prompt tasarımı, SAST parametreleri ve metrik hesabının tüm gruplarda aynı olması temel araştırma metodolojisi gereğidir.
+**Etkisi:** Diğer branch bu dosyaları bu repo'dan doğrudan almalı veya senkronize tutmalıdır.
+
+---
+
 ## Reddedilen Kararlar
 
 ### #008 — Donanım Optimizasyonu (AWQ, Quantization)
@@ -112,7 +142,7 @@ _(Şu an bekleyen karar yok)_
 | ID | Endişe | Öncelik | Durum |
 |----|--------|---------|-------|
 | C1 | API maliyeti — tüm modeller ücretsiz Gemini'ye geçildi, maliyet sıfır | Yüksek | ✅ Kapandı |
-| C2 | LLMSecEval veri setine erişim — GitHub'dan doğrudan indirilebilir mi? | Orta | Açık |
-| C3 | Farklı API'lerin rate limit'leri — paralel çalıştırmada sorun çıkabilir | Orta | Açık |
+| C2 | LLMSecEval veri setine erişim — GitHub'dan doğrudan indirilebilir mi? | Orta | ✅ Kapandı — indirildi |
+| C3 | Farklı API'lerin rate limit'leri — paralel çalıştırmada sorun çıkabilir | Orta | ✅ Kapandı — tamamen Ollama'ya geçildi |
 | C4 | Bandit'in false positive oranı — bazı "güvenli" kodları zafiyet olarak işaretleyebilir | Düşük | Açık |
 | C5 | Commit geçmişi — hoca izliyor, mid-phase'e kadar düzenli commit şart | Yüksek | Açık |
