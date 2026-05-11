@@ -29,7 +29,7 @@
   - ✅ `chain_of_thought.py` — CoT formatında prompt
 - ✅ `analysis/` klasörü oluşturuldu (henüz script yok)
   - ✅ `compare_results.py` — Bandit hit rate, çözüm oranı, CWE kırılımı, model/strateji karşılaştırması
-  - [ ] `visualize.py` — bar chart, heatmap üret
+  - ✅ `visualize.py` — 5 grafik: bandit hit rate, resolution rate, avg iterations, CWE heatmap, final status
 - ✅ `requirements.txt` oluşturuldu (openai, google-generativeai, python-dotenv, matplotlib, pandas, bandit, pylint)
 - ✅ `.gitignore` oluşturuldu (.env dahil)
 - ✅ `code_generator.py` hardcoded API key → `.env`'den okuyacak şekilde düzeltildi
