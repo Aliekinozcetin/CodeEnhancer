@@ -2,7 +2,7 @@
 # Model önce güvenlik risklerini adım adım analiz eder, sonra güvenli kodu yazar.
 
 
-def build_prompt(task_description: str) -> str:
+def create_prompt(task_description: str) -> str:
     """Chain-of-thought prompt — güvenlik analizi adımları, ardından kod üretimi."""
     return (
         "You are a security-aware code generation assistant. "
@@ -24,4 +24,4 @@ def build_prompt(task_description: str) -> str:
     )
 
 
-SYSTEM_MESSAGE = "You are a security-aware code generation assistant."
+SYSTEM_PROMPT = "You are a security-aware code generation assistant."

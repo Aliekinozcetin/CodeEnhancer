@@ -1,5 +1,5 @@
 # TODO.md — CodeEnhancer Comparative Study
-> Son güncelleme: 2026-05-11
+> Son güncelleme: 2026-05-11 (Revize: Ollama-only)
 > Claude Code: Bu dosyayı yaptığın her değişiklikten sonra güncelle. Tamamlananları ✅, devam edenleri 🔄, bloke olanları 🔴 ile işaretle.
 
 ---
@@ -8,8 +8,8 @@
 
 - [ ] GitHub fork URL'sini CLAUDE.md'ye ekle
 - [ ] Repo'yu local'de çalıştır (Python env kur, bağımlılıkları yükle)
-- ✅ `.env` dosyası oluşturuldu (şablon hazır — gerçek API key'leri sen gireceksin)
-- [ ] `.env` dosyasına gerçek OPENAI_API_KEY ve GOOGLE_API_KEY değerlerini gir
+- ✅ `.env` dosyası oluşturuldu (Ollama-only — API key gerekmez)
+- ✅ `.env.example` güncellendi (OpenAI ve Google kaldırıldı)
 - ✅ `data/llmseceval/` klasörü oluşturuldu, LLMSecEval veri seti indirildi (150 prompt, 18 CWE)
 - [ ] İlk 15 prompt ile **GPT-4o zero-shot** (orijinal baseline) çalıştır
 - [ ] `experiments/gpt4o_zeroshot/` altına sonuçları kaydet
@@ -22,7 +22,7 @@
 
 ## 📁 Altyapı & Kurulum
 
-- ✅ `experiments/` klasör yapısı oluşturuldu (9 kombinasyon: 3 model × 3 strateji — tümü Gemini)
+- ✅ `experiments/` klasör yapısı oluşturuldu (9 kombinasyon: 3 model × 3 strateji — tümü Ollama)
 - ✅ `prompts/` klasörü oluşturuldu
   - ✅ `zero_shot.py` — orijinal CodeEnhancer system prompt'u
   - ✅ `few_shot.py` — 3 örnekli few-shot (CWE-78, CWE-89, CWE-502)
@@ -30,7 +30,7 @@
 - ✅ `analysis/` klasörü oluşturuldu (henüz script yok)
   - [ ] `compare_results.py` — farklı experiments/ klasörlerindeki results.json'ları karşılaştır
   - [ ] `visualize.py` — bar chart, heatmap üret
-- ✅ `requirements.txt` oluşturuldu (openai, google-generativeai, python-dotenv, matplotlib, pandas, bandit, pylint)
+- ✅ `requirements.txt` oluşturuldu (openai, ollama, python-dotenv, matplotlib, pandas, bandit, pylint)
 - ✅ `.gitignore` oluşturuldu (.env dahil)
 - ✅ `code_generator.py` hardcoded API key → `.env`'den okuyacak şekilde düzeltildi
 - ✅ `code_validator.py` hardcoded API key → `.env`'den okuyacak şekilde düzeltildi
@@ -46,11 +46,12 @@
 - ✅ Chain-of-Thought prompt şablonu yazıldı (`prompts/chain_of_thought.py`)
 - [ ] Prompt şablonlarını `code_generator.py`'ye parametre olarak geçirecek refactor yap
 
-### Model Entegrasyonları
-- [ ] Gemini 1.5 Flash entegrasyonu (`google-generativeai` client)
-- [ ] Gemini 2.0 Flash entegrasyonu
-- [ ] Llama 3.1 8B entegrasyonu (Ollama REST API — `http://localhost:11434`)
-- [ ] Ollama kurulumu: `brew install ollama && ollama pull llama3.1`
+### Model Entegrasyonları (Tümü Ollama)
+- [ ] Ollama kurulumu + model indirme: `ollama pull qwen2.5-coder:7b && ollama pull llama3.1:8b && ollama pull gemma2:9b`
+- [ ] Qwen2.5-Coder 7B entegrasyonu (Ollama OpenAI-compat endpoint)
+- [ ] Llama 3.1 8B entegrasyonu (Ollama OpenAI-compat endpoint)
+- [ ] Gemma 2 9B entegrasyonu (Ollama OpenAI-compat endpoint)
+- [ ] `client_factory.py` oluştur — model-agnostik client wrapper
 - [ ] Her model için API çağrısını izole et, ileride kolayca yeni model eklenebilsin
 
 ### Deney Çalıştırma

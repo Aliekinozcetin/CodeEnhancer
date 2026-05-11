@@ -68,13 +68,13 @@ _(Şu an bekleyen karar yok)_
 
 ## Kesinleşmiş Kararlar (Devam)
 
-### #005 — Model Seçimi (Final)
-**Tarih:** 2026-05-11 → Final revize: 2026-05-11
+### #005 — Model Seçimi (Final — Revize 2)
+**Tarih:** 2026-05-11 → Revize 2: 2026-05-11
 **Durum:** ✅ Kesinleşti
-**Karar:** Deney matrisi: **Gemini 1.5 Flash** (Google API, ücretsiz), **Gemini 2.0 Flash** (Google API, ücretsiz), **Llama 3.1 8B via Ollama** (local, ücretsiz). OpenAI API'si kapsam dışı bırakıldı; ileride gerekirse eklenir.
-**Gerekçe:** Tüm modeller ücretsiz. Gemini 1.5 Flash vs 2.0 Flash → nesil karşılaştırması. Llama 3.1 8B (Ollama, local) → cloud vs local karşılaştırması. M4 çip + 16 GB RAM ile Ollama Metal desteğiyle hızlı çalışır. Üç farklı paradigma akademik katkıyı güçlendiriyor.
-**Reddedilen Alternatifler:** GPT-4o / GPT-4o-mini (ücretli), Claude Haiku (ücretli), Gemini 1.5 Pro (Gemini 2.0 Flash daha güncel ve ücretsiz).
-**Etkisi:** `code_generator.py`'e Gemini client + Ollama REST API client entegre edilecek. Deney klasörleri güncellendi.
+**Karar:** Tüm modeller **Ollama** üzerinden local çalışacak. Deney matrisi: **Qwen2.5-Coder 7B** (kod-uzmanı), **Llama 3.1 8B** (genel amaçlı baseline), **Gemma 2 9B** (farklı vendor/mimari). OpenAI ve Google API kapsam dışı.
+**Gerekçe:** (1) Sıfır API maliyeti — tüm deneyler local. (2) Tam tekrarlanabilirlik — cloud API davranışı zamanla değişebilir, local model sabittir. (3) Üç farklı vendor (Alibaba, Meta, Google) = farklı eğitim verisi ve bias. (4) Kod-uzmanı vs genel amaçlı karşılaştırması güçlü bir araştırma sorusu: "Kod-uzmanı model, güvenlik açıklarını genel amaçlı modellerden daha iyi önler mi?"
+**Reddedilen Alternatifler:** Gemini API (cloud bağımlılığı, rate limit riski), GPT-4o (ücretli), Claude (ücretli), Mistral 7B (Gemma 2 9B daha güncel ve daha iyi benchmark sonuçları).
+**Etkisi:** `code_generator.py` ve `code_validator.py` Ollama OpenAI-compat endpoint kullanacak. `.env` güncellendi. Deney klasörleri yeniden oluşturuldu.
 
 ---
 
@@ -111,8 +111,9 @@ _(Şu an bekleyen karar yok)_
 
 | ID | Endişe | Öncelik | Durum |
 |----|--------|---------|-------|
-| C1 | API maliyeti — tüm modeller ücretsiz Gemini'ye geçildi, maliyet sıfır | Yüksek | ✅ Kapandı |
+| C1 | API maliyeti — tüm modeller Ollama local, maliyet sıfır | Yüksek | ✅ Kapandı |
 | C2 | LLMSecEval veri setine erişim — GitHub'dan doğrudan indirilebilir mi? | Orta | Açık |
-| C3 | Farklı API'lerin rate limit'leri — paralel çalıştırmada sorun çıkabilir | Orta | Açık |
+| C3 | ~~Farklı API'lerin rate limit'leri~~ — Ollama local, rate limit yok | Orta | ✅ Kapandı |
 | C4 | Bandit'in false positive oranı — bazı "güvenli" kodları zafiyet olarak işaretleyebilir | Düşük | Açık |
 | C5 | Commit geçmişi — hoca izliyor, mid-phase'e kadar düzenli commit şart | Yüksek | Açık |
+| C6 | Ollama RAM kullanımı — 16 GB RAM'de 9B model + OS overhead sınırda olabilir | Orta | Açık |

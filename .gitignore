@@ -11,9 +11,17 @@ build/
 venv/
 env/
 
-# Deney çıktıları — büyük dosyalar olabilir, isteğe bağlı
-# experiments/*/code/   # Eğer commit etmek istersen bu satırı kaldır
+# Deney Çıktıları — Repoyu şişirmemesi için ignore ediliyor
+experiments/
 
+# Analiz Çıktıları — Her koşuda otomatik üretildiği için ignore ediliyor
+analysis/metrics.csv
+analysis/comparison_report.json
+analysis/figures/
 # OS
 .DS_Store
 Thumbs.db
+
+# Dokümantasyon / Notlar
+*.md
+!README.md

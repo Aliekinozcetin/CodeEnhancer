@@ -2,7 +2,7 @@
 # Orijinal CodeEnhancer system prompt'unun birebir karşılığı.
 
 
-def build_prompt(task_description: str) -> str:
+def create_prompt(task_description: str) -> str:
     """Zero-shot prompt — görev açıklaması dışında hiçbir örnek veya yönlendirme yok."""
     return (
         "Please write Python code for the following task. "
@@ -15,4 +15,4 @@ def build_prompt(task_description: str) -> str:
     )
 
 
-SYSTEM_MESSAGE = "You are a code generation assistant."
+SYSTEM_PROMPT = "You are a code generation assistant."

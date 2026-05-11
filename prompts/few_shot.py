@@ -57,7 +57,7 @@ def load_object(file_path: str) -> dict:
 ]
 
 
-def build_prompt(task_description: str) -> str:
+def create_prompt(task_description: str) -> str:
     """Few-shot prompt — 3 güvenli kod örneği gösterildikten sonra görev verilir."""
     examples_text = ""
     for i, ex in enumerate(FEW_SHOT_EXAMPLES, 1):
@@ -76,4 +76,4 @@ def build_prompt(task_description: str) -> str:
     )
 
 
-SYSTEM_MESSAGE = "You are a secure code generation assistant."
+SYSTEM_PROMPT = "You are a secure code generation assistant."
