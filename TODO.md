@@ -11,9 +11,9 @@
 - ✅ `.env` dosyası oluşturuldu (şablon hazır — gerçek API key'leri sen gireceksin)
 - [ ] `.env` dosyasına gerçek OPENAI_API_KEY ve GOOGLE_API_KEY değerlerini gir
 - ✅ `data/llmseceval/` klasörü oluşturuldu, LLMSecEval veri seti indirildi (150 prompt, 18 CWE)
-- [ ] İlk 15 prompt ile **GPT-4o zero-shot** (orijinal baseline) çalıştır
-- [ ] `experiments/gpt4o_zeroshot/` altına sonuçları kaydet
-- [ ] İkinci model ile aynı 15 prompt üzerinde çalıştır → **Baseline 2**
+- ✅ 3 model × 3 strateji = 9 deney, 135 kod dosyası üretildi
+- ✅ `code_validator.py` Ollama'ya uyarlandı, test edildi (Bandit + Pylint + LLM döngüsü)
+- [ ] Tüm deneylerin validasyonunu çalıştır (`python3 code_validator.py`)
 - [ ] İki modelin sonuçlarını karşılaştıran basit bir tablo oluştur
 - [ ] Mid-phase report taslağını yaz (bölüm 1, 2, 3, 4, 5)
 - [ ] GitHub'a en az 3-4 anlamlı commit at (commit geçmişi hoca tarafından izleniyor)
