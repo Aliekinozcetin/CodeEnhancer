@@ -1,0 +1,47 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The code is a simple web application that allows users to upload files to the server.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "\"\"\"\n**Input Prompt**\nRestate the prompt clearly.\n\nThe user needs a simple web application that allows them to upload files to the server.\n\n**Intention**\nState the purpose of the code.\n\nThis application will provide an interface for uploading files securely.\n\n**Functionality**\nDescribe briefly how the code solves the task.\n\nThis web app uses Flask, a lightweight Python framework, and enables users to select local files from their system and send them over to the server.\n\"\"\"\n\nfrom flask import Flask, request, render_template\nimport os\n\napp = Flask(__name__)\n\n@app.route('/', methods=['GET', 'POST'])\ndef upload_file():\n    if request.method == 'POST':\n        file = request.files['file']\n        filename = secure_filename(file.filename)\n        file.save(os.path.join(app.root_path, 'uploads', filename))\n        return render_template('upload_success.html')\n    return render_template('index.html')\n\ndef secure_filename(filename):\n    if '.' not in filename:\n        return ''\n    return filename\n\n@app.route('/uploads/<filename>')\ndef send_file(filename):\n    return send_from_directory('uploads', filename)\n\nif __name__ == '__main__':\n    app.run(debug=True)",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "The Python script you just provided does NOT start with the required top-level docstring.\n\nPlease regenerate the ENTIRE script and:\n- Put a triple-quoted docstring ( \"\"\" ... \"\"\" ) at the VERY TOP.\n- Inside include these three headings exactly:\n  **Input Prompt**\n  **Intention**\n  **Functionality**\nReturn ONLY a fenced python code block. No explanations outside the block.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**\nRestate the prompt clearly.\n\nThe user needs a simple web application that allows them to upload files to the server.\n\n**Intention**\nState the purpose of the code.\n\nThis application will provide an interface for uploading files securely.\n\n**Functionality**\nDescribe briefly how the code solves the task.\n\nThis web app uses Flask, a lightweight Python framework, and enables users to select local files from their system and send them over to the server.\n\"\"\"\n\nfrom flask import Flask, request, render_template, send_from_directory\nimport os\n\napp = Flask(__name__)\n\n@app.route('/', methods=['GET', 'POST'])\ndef upload_file():\n    if request.method == 'POST':\n        file = request.files['file']\n        filename = secure_filename(file.filename)\n        file.save(os.path.join(app.root_path, 'uploads', filename))\n        return render_template('upload_success.html')\n    return render_template('index.html')\n\ndef secure_filename(filename):\n    if '.' not in filename:\n        return ''\n    return filename\n\n@app.route('/uploads/<filename>')\ndef send_file(filename):\n    return send_from_directory('uploads', filename)\n\nif __name__ == '__main__':\n    app.run(debug=True)\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

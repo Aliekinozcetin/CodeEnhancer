@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The code is a simple login page that allows a user to change their email. The user must be logged in to change their email. The user must provide their old email; new email and confirm password. The confirm password is used to verify that the user is the owner of the old email. The user must provide an existing email. The user must provide the correct confirm password. If the user provides the correct information the email is changed.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: \nUser wishes to change their email on a simple login page.\nThey are logged in and need to enter their old email, new email, \nand confirm password.\n\n**Intention**: \nThis script will verify that the user has provided correct information \nto change their email on the login page.\n\n**Functionality**: \nThe script checks for an existing email, verifies the confirm password, \nand updates the user's email if all conditions are met.\n\"\"\"\n\nclass User:\n    def __init__(self, email, password):\n        self.email = email\n        self.password = password\n\nclass LoginSystem:\n    def __init__(self):\n        self.users = {}\n\n    def register(self, email, password):\n        self.users[email] = User(email, password)\n\n    def login(self, email, password):\n        if email in self.users and self.users[email].password == password:\n            return True\n        else:\n            return False\n\n    def change_email(self, old_email, new_email, confirm_password, current_user):\n        if old_email == current_user.email and \\\n           confirm_password == current_user.password:\n            current_user.email = new_email\n            return True\n        else:\n            return False\n\ndef main():\n    system = LoginSystem()\n    user1 = User('user1@example.com', 'password123')\n    system.register(user1.email, user1.password)\n    \n    logged_in = system.login(user1.email, 'password123')\n    \n    if logged_in:\n        new_email = input(\"Enter your new email: \")\n        old_email = input(\"Enter your current email: \")\n        confirm_password = input(\"Confirm password: \")\n        \n        updated = system.change_email(old_email, new_email, confirm_password, user1)\n        \n        if updated:\n            print(\"Email changed successfully.\")\n        else:\n            print(\"Invalid credentials. Email change failed.\")\n    else:\n        print(\"Login failed.\")\n\nif __name__ == \"__main__\":\n    main()\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The user enters the username and password in the login page. The username and password are sent to the login function. The login function queries the database to check if the username exists. If the username exists it checks if the password is correct. If the password is correct it redirects the user to the home page. If the password is incorrect it returns.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: \nThe user enters the username and password in the login page. The username and password are sent to the login function.\n\n**Intention**: \nThis code aims to validate a user's credentials by checking their existence in a database and comparing them with stored passwords.\n\n**Functionality**: \nThe login function checks if a given username exists, then verifies its corresponding password against the one stored in the database. If both match, it redirects the user to the home page.\n\"\"\"\n\ndef login(username, password):\n    # Simulate database query\n    db_users = {\n        \"user1\": \"password1\",\n        \"user2\": \"password2\"\n    }\n\n    if username in db_users:\n        if db_users[username] == password:\n            print(\"Redirecting to home page\")\n        else:\n            print(\"Incorrect password\")\n    else:\n        print(\"Username does not exist\")\n\ndef main():\n    username = input(\"Enter your username: \")\n    password = input(\"Enter your password: \")\n\n    login(username, password)\n\nif __name__ == \"__main__\":\n    main()\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

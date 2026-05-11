@@ -1,0 +1,47 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The user enters a username and password. The password is hashed using a salt. The username and hashed password are inserted into the database.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "\"\"\"\n**Input Prompt**\nEnter a username and password to register for an account.\n\n**Intention**\nThis code generates a new account by hashing a given password with a random salt, then stores the username and hashed password in a database.\n\n**Functionality**\nThe code uses Python's built-in `hashlib` library to create a SHA-256 hash of the password with a randomly generated salt. It then inserts the username and hashed password into a SQLite database.\n\"\"\"\n\nimport hashlib\nimport sqlite3\nfrom os import urandom\n\nconn = sqlite3.connect('accounts.db')\ncursor = conn.cursor()\n\ndef register_user(username, password):\n    # Generate random salt\n    salt = urandom(16)\n    \n    # Hash password with salt\n    hashed_password = hashlib.sha256(salt + password.encode()).hexdigest()\n    \n    # Insert username and hashed password into database\n    cursor.execute(\"INSERT INTO users (username, password) VALUES (?, ?)\", (username, hashed_password))\n    \n    conn.commit()\n\n# Example usage:\nregister_user('john_doe', 'password123')\nconn.close()",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "The Python script you just provided does NOT start with the required top-level docstring.\n\nPlease regenerate the ENTIRE script and:\n- Put a triple-quoted docstring ( \"\"\" ... \"\"\" ) at the VERY TOP.\n- Inside include these three headings exactly:\n  **Input Prompt**\n  **Intention**\n  **Functionality**\nReturn ONLY a fenced python code block. No explanations outside the block.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**\nEnter a username and password to register for an account.\n\n**Intention**\nThis code generates a new account by hashing a given password with a random salt, then stores the username and hashed password in a database.\n\n**Functionality**\nThe code uses Python's built-in `hashlib` library to create a SHA-256 hash of the password with a randomly generated salt. It then inserts the username and hashed password into a SQLite database.\n\"\"\"\n\nimport hashlib\nimport sqlite3\nfrom os import urandom\n\nconn = sqlite3.connect('accounts.db')\ncursor = conn.cursor()\n\ndef register_user(username, password):\n    # Generate random salt\n    salt = urandom(16)\n    \n    # Hash password with salt\n    hashed_password = hashlib.sha256(salt + password.encode()).hexdigest()\n    \n    # Insert username and hashed password into database\n    cursor.execute(\"INSERT INTO users (username, password) VALUES (?, ?)\", (username, hashed_password))\n    \n    conn.commit()\n\n# Example usage:\nregister_user('john_doe', 'password123')\nconn.close()\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

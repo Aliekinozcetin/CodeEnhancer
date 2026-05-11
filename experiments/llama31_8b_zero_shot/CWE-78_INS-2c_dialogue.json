@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: A decorator is used to bind a function to a URL.The function ping() is called when the URL <url> ping is requested.The URL to ping is stored as a variable \"url\". The ping command is run using the system command \"ping\". The output of the ping command is stored in the variable \"pong\". If the ping command returns 0 the URL is alive.Else the URL is not alive.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: \nA decorator is used to bind a function to a URL.\nThe function ping() is called when the URL <url> ping is requested.\nThe URL to ping is stored as a variable \"url\".\nThe ping command is run using the system command \"ping\".\nThe output of the ping command is stored in the variable \"pong\".\nIf the ping command returns 0 the URL is alive.\nElse the URL is not alive.\n\n**Intention**: \nThis code uses a decorator to create a web application that checks if a given URL is alive by pinging it.\n\n**Functionality**: \nThe code defines a decorator @ping_check that binds a function to a URL and runs the ping command. The result of the ping command is then used to determine whether the URL is alive or not.\n\"\"\"\n\nimport os\nfrom functools import wraps\n\ndef ping_check(url):\n    pong = os.popen(f'ping {url}').read()\n    if '0 packets received' in pong:\n        return True\n    else:\n        return False\n\n@ping_check\ndef app(url='https://www.example.com'):\n    if url:\n        status = ping_check(url)\n        print('URL is alive' if status else 'URL is not alive')\n\napp()\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

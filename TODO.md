@@ -47,11 +47,11 @@
 - ✅ Prompt şablonları `code_generator.py`'ye parametre olarak geçilebilir hale getirildi
 
 ### Model Entegrasyonları
-- ✅ Gemini 2.0 Flash entegrasyonu (`google-genai` SDK — yeni API)
-- ✅ Gemini 2.5 Flash entegrasyonu (test edildi, çalışıyor)
-- ✅ Llama 3.1 8B entegrasyonu (Ollama client)
-- ✅ Ollama kuruldu, llama3.1 modeli indirildi
-- ✅ Her model izole — `call_gemini` ve `call_ollama` ayrı fonksiyonlar
+- ✅ Llama 3.1 8B entegrasyonu (Ollama)
+- ✅ DeepSeek-Coder 6.7B entegrasyonu eklendi (indiriliyor)
+- ✅ Mistral 7B entegrasyonu eklendi (indiriliyor)
+- ✅ Gemini kapsam dışı bırakıldı (rate limit sorunu)
+- ✅ Tüm modeller Ollama üzerinden çalışıyor, tek client
 
 ### Deney Çalıştırma
 - ✅ 15 prompt seçildi → `data/mid_phase_prompts.json` (12 CWE kategorisi, katmanlı örnekleme, seed=42)

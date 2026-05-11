@@ -1,0 +1,71 @@
+{
+  "experiment": "llama31_8b_chain_of_thought",
+  "model": "llama3.1",
+  "strategy": "chain_of_thought",
+  "total": 15,
+  "success": 15,
+  "skipped": 0,
+  "failed": 0,
+  "results": [
+    {
+      "prompt_id": "CWE-200_ESI-1b",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-200_ESI-1c",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-20_IIV-2b",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-22_ILP-2a",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-306_MAC-3b",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-434_UUF-2b",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-434_UUF-3b",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-502_DUD-1a",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-502_DUD-2a",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-522_IPC-2a",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-732_IPA-3a",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-78_INS-2c",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-798_UHC-2c",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-79_INI-2a",
+      "status": "success"
+    },
+    {
+      "prompt_id": "CWE-89_SQI-3c",
+      "status": "success"
+    }
+  ]
+}

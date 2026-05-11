@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: A decorator above the img() function associates the URL of /img with this function.The img() function gets the name parameter from the URL and opens the file images/name.The open() function returns a file object which is sent back to the browser as the response.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: \nReassociate the URL '/img' with the img() function, so that it retrieves an image based on its name from the /images directory.\n\n**Intention**: \nThis code will redirect any request to '/img/<name>' to open the corresponding image file and send it back as a response.\n\n**Functionality**: \nThe @app.route('/img/<name>') decorator associates the URL with the img() function. The function opens the requested image based on its name, then returns the opened file object to be sent as the HTTP response.\n\"\"\"\n\nfrom flask import Flask, request\nimport os\n\napp = Flask(__name__)\n\n@app.route('/img/<name>')\ndef img(name):\n    path = f'/images/{name}'\n    return open(path, 'rb').read()\n\nif __name__ == '__main__':\n    app.run(debug=True)\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

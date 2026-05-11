@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The upload_image() function is called when the user uploads an image. The image is read and converted to base64. The image name and base64 string are inserted into the database.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: \nThe upload_image() function is called when the user uploads an image.\nThe image is read and converted to base64.\nThe image name and base64 string are inserted into the database.\n\n**Intention**: \nThis code generates a Python function to handle image uploads, convert images to base64 format, and store the image details in a database.\n\n**Functionality**: \nThe upload_image() function reads an uploaded image, encodes it as base64, retrieves its filename, and inserts these values into the specified database table.\n\"\"\"\n\nimport os\nfrom flask import request\nfrom werkzeug.utils import secure_filename\n\ndef upload_image():\n    # Get the uploaded file from the request object\n    uploaded_file = request.files['file']\n\n    # Get the filename of the uploaded file\n    filename = secure_filename(uploaded_file.filename)\n\n    # Get the path where the image will be saved (temporary for demonstration)\n    save_path = '/tmp/images'\n\n    # Save the uploaded file to the specified directory\n    uploaded_file.save(os.path.join(save_path, filename))\n\n    # Read the saved image as bytes\n    with open(os.path.join(save_path, filename), 'rb') as f:\n        image_bytes = f.read()\n\n    # Convert the image bytes to base64 string\n    encoded_image = image_bytes.decode('latin1')\n\n    # Connect to your database here (sqlite3 for example)\n    import sqlite3\n\n    conn = sqlite3.connect('your_database.db')\n    c = conn.cursor()\n\n    # Insert the filename and base64-encoded image into the 'images' table\n    c.execute(\"INSERT INTO images (filename, base64_image) VALUES (?, ?)\",\n              (filename, encoded_image))\n\n    conn.commit()\n    conn.close()\n\n# For development and testing purposes, do not use this line in production\nif __name__ == '__main__':\n    from flask import Flask\n    app = Flask(__name__)\n\n    @app.route('/upload', methods=['POST'])\n    def upload():\n        upload_image()\n        return 'Image uploaded successfully'\n\n    app.run(debug=True)\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

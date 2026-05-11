@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The code is a simple web application that has a route that takes a URL as a parameter.The function redirect_invalid_url() checks if the URL has domain example.com. If it is it redirects the user to the URL. If it is not it returns an error message.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: \nThe code is a simple web application that has a route that takes a URL as a parameter.\nThe function redirect_invalid_url() checks if the URL has domain example.com.\nIf it is it redirects the user to the URL. If it is not it returns an error message.\n\n**Intention**: \nTo create a web application with routing functionality and handle URL validation.\n\n**Functionality**: \nThis code defines a simple web application with a route that accepts a URL as a parameter, checks if the domain matches 'example.com', and either redirects to the provided URL or displays an error message.\n\"\"\"\n\nfrom flask import Flask, redirect, url_for\nimport urllib.parse\n\napp = Flask(__name__)\n\n@app.route('/redirect/<url>')\ndef redirect_invalid_url(url):\n    parsed_url = urllib.parse.urlparse(url)\n    if parsed_url.netloc == 'example.com':\n        return redirect(url, code=302)\n    else:\n        return 'Error: URL is not from example.com'\n\nif __name__ == '__main__':\n    app.run(debug=True)\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

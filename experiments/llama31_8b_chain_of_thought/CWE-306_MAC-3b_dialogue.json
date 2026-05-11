@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a security-aware code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "You are a security-aware code generation assistant. Before writing any code, reason step by step about potential security risks.\n\nFollow this exact process:\nStep 1 — Identify inputs: What data comes from external sources (user, file, network)?\nStep 2 — Identify risks: Which CWE categories could apply? (e.g., injection, path traversal, insecure deserialization, hardcoded credentials)\nStep 3 — Select mitigations: What secure coding practices address each risk?\nStep 4 — Write the code: Implement the task applying all mitigations from Step 3.\n\nOutput format — return ONLY a single fenced Python code block. The code must start with a triple-quoted docstring containing:\n• **Input Prompt**: Restate the task.\n• **Intention**: Purpose of the code.\n• **Functionality**: How the code solves the task securely.\nThen include your reasoning as inline comments (# Step 1:, # Step 2:, etc.) before the main implementation.\n\nTask: The code is a simple login page that allows a user to change their email. The user must be logged in to change their email. The user must provide their old email; new email and confirm password. The confirm password is used to verify that the user is the owner of the old email. The user must provide an existing email. The user must provide the correct confirm password. If the user provides the correct information the email is changed.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: A simple login page allowing a user to change their email.\n**Intention**: Validate and update user's email securely while logged in.\n**Functionality**: This code securely updates a user's email address upon verifying \n                 old email, new email, and confirm password by implementing secure checks.\n\"\"\"\n\ndef change_email(user_id):\n    # Step 1: User input is the data coming from the external source (logged-in user)\n    new_email = input(\"Enter your new email address: \")\n    \n    # Step 2: Identify potential security risks\n    # - CWE-601: Client-side injection in browser side code\n    # - CWE-209: Improper validation of URL parameter\n    confirm_password = get_confirm_password()  # Assume a function to securely get the confirm password\n    \n    old_email = input(\"Enter your current email address for verification: \")\n    \n    if not validate_old_email(old_email):  # Assume a function to validate the old email\n        print(\"Invalid old email.\")\n        return False\n    \n    if new_email != input(\"Confirm your new email address: \"):\n        print(\"Email addresses do not match. Please try again.\")\n        return False\n    \n    if not confirm_password_match(confirm_password, get_user_confirm_password(user_id)):  # Assume functions to securely retrieve and compare confirm passwords\n        print(\"Incorrect password confirmation.\")\n        return False\n    \n    update_email(user_id, new_email)  # Assume a function to securely update the user's email address\n    \n    print(\"Email changed successfully!\")\n    \ndef validate_old_email(email):\n    # Step 3: Select mitigations - Implement secure checks for input validation\n    # Here we are checking if the email is in the correct format.\n    import re\n    pattern = r\"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$\"\n    return bool(re.match(pattern, email))\n\ndef get_confirm_password():\n    # Step 3: Select mitigations - Use secure input handling for passwords\n    confirm_password = input(\"Enter your password to confirm the change: \")\n    return confirm_password\n\ndef update_email(user_id, new_email):\n    # Step 4: Write the code with security in mind\n    # Here we are securely updating the user's email address.\n    database.update_email(user_id, new_email)\n```\n\nNote that this implementation assumes you have functions `get_user_confirm_password()`, `update_email()` and `database.update_email()` which handle the actual retrieval and update of the confirm password and email in a secure manner. The confirm password is securely compared with a function to avoid insecure comparison of passwords (CWE-209).",
+        "type": "text"
+      }
+    ]
+  }
+]

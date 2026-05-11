@@ -19,22 +19,22 @@ DATASET_PATH = os.path.join(BASE_DIR, "data", "mid_phase_prompts.json")
 
 # Her kombinasyon: (model_key, prompt_strategy) → experiments/<model_key>_<strategy>/
 EXPERIMENTS = [
-    ("gemini20flash", "zero_shot"),
-    ("gemini20flash", "few_shot"),
-    ("gemini20flash", "chain_of_thought"),
-    ("gemini25flash", "zero_shot"),
-    ("gemini25flash", "few_shot"),
-    ("gemini25flash", "chain_of_thought"),
-    ("llama31_8b",    "zero_shot"),
-    ("llama31_8b",    "few_shot"),
-    ("llama31_8b",    "chain_of_thought"),
+    ("llama31_8b",      "zero_shot"),
+    ("llama31_8b",      "few_shot"),
+    ("llama31_8b",      "chain_of_thought"),
+    ("deepseek_coder",  "zero_shot"),
+    ("deepseek_coder",  "few_shot"),
+    ("deepseek_coder",  "chain_of_thought"),
+    ("mistral7b",       "zero_shot"),
+    ("mistral7b",       "few_shot"),
+    ("mistral7b",       "chain_of_thought"),
 ]
 
-# Model ID'leri
+# Model ID'leri (Ollama model isimleri)
 MODEL_IDS = {
-    "gemini20flash": "gemini-2.0-flash",
-    "gemini25flash": "gemini-2.5-flash",
-    "llama31_8b":    "llama3.1",
+    "llama31_8b":     "llama3.1",
+    "deepseek_coder": "deepseek-coder:6.7b",
+    "mistral7b":      "mistral:7b",
 }
 
 MAX_RETRIES = 5
@@ -87,45 +87,12 @@ def has_docstring(code: str) -> bool:
     return all(section in code for section in REQUIRED_SECTIONS)
 
 # ------------------ LLM Clients ------------------
-def call_gemini(model_id: str, messages: list) -> str:
-    from google import genai
-    from google.genai import types
-    client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
-
-    # system mesajını ayır, geri kalanı history'e dönüştür
-    system_msg = next((m["content"] for m in messages if m["role"] == "system"), None)
-    history = []
-    for m in messages[:-1]:
-        if m["role"] == "system":
-            continue
-        role = "model" if m["role"] == "assistant" else "user"
-        history.append(types.Content(role=role, parts=[types.Part(text=m["content"])]))
-
-    config = types.GenerateContentConfig(
-        system_instruction=system_msg,
-        temperature=0,
-        max_output_tokens=2048,
-    )
-    chat = client.chats.create(model=model_id, history=history, config=config)
-    response = chat.send_message(messages[-1]["content"])
-    return response.text.strip()
-
-def call_ollama(model_id: str, messages: list) -> str:
+def call_llm(model_key: str, messages: list) -> str:
     import ollama
-    ollama_messages = [
-        {"role": m["role"], "content": m["content"]}
-        for m in messages
-    ]
+    model_id = MODEL_IDS[model_key]
+    ollama_messages = [{"role": m["role"], "content": m["content"]} for m in messages]
     response = ollama.chat(model=model_id, messages=ollama_messages)
     return response.message.content.strip()
-
-def call_llm(model_key: str, messages: list) -> str:
-    model_id = MODEL_IDS[model_key]
-    if model_key.startswith("gemini"):
-        return call_gemini(model_id, messages)
-    elif model_key == "llama31_8b":
-        return call_ollama(model_id, messages)
-    raise ValueError(f"Bilinmeyen model: {model_key}")
 
 # ------------------ Prompt Builder ------------------
 def build_prompt(strategy: str, task: str) -> tuple[str, str]:
@@ -198,8 +165,8 @@ def run_experiment(model_key, strategy, dataset):
     print(f"\n▶ {exp_name} ({len(dataset)} prompt)")
     results = []
 
-    # Ollama paralel çağrıya uygun değil → sequential
-    workers = 1 if model_key == "llama31_8b" else MAX_WORKERS
+    # Tüm modeller Ollama → sequential
+    workers = 1
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {

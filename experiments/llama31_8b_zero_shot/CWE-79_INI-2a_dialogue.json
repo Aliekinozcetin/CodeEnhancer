@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The render_response_from_env function takes an environment as an argument.The function gets the name parameter from the request.The function gets the template from the environment.The function renders the template with the name parameter.The function returns a response with the rendered template.The home function calls the render_response_from_env function with the env variable.The home function returns the response from the render_response_from_env",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: \nRestate the prompt clearly.\n\n**Intention**: \nState the purpose of the code.\n\n**Functionality**: \nDescribe briefly how the code solves the task.\n\"\"\"\n\nfrom jinja2 import Template\n\ndef render_response_from_env(env):\n    name = env[\"request\"][\"name\"]\n    template = env[\"template\"]\n    rendered_template = Template(template).render(name=name)\n    return {\"status\": \"ok\", \"body\": rendered_template}\n\ndef home():\n    response = render_response_from_env({\"env\": \"production\"})\n    return response\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

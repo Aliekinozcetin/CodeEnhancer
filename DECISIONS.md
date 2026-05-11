@@ -71,9 +71,9 @@ _(Şu an bekleyen karar yok)_
 ### #005 — Model Seçimi (Final)
 **Tarih:** 2026-05-11 → Final revize: 2026-05-11
 **Durum:** ✅ Kesinleşti
-**Karar:** Deney matrisi: **Gemini 2.0 Flash** (Google API, ücretsiz), **Gemini 2.5 Flash** (Google API, ücretsiz), **Llama 3.1 8B via Ollama** (local, ücretsiz). OpenAI API'si kapsam dışı bırakıldı; ileride gerekirse eklenir.
-**Gerekçe:** Tüm modeller ücretsiz. Gemini 1.5 Flash yeni google-genai SDK'sında artık mevcut değil (deprecated). Gemini 2.0 Flash vs 2.5 Flash → iki farklı nesil karşılaştırması. Llama 3.1 8B (Ollama, local) → cloud vs local karşılaştırması. M4 çip + 16 GB RAM ile Ollama Metal desteğiyle hızlı çalışır.
-**Reddedilen Alternatifler:** GPT-4o / GPT-4o-mini (ücretli), Claude Haiku (ücretli), Gemini 1.5 Flash (yeni SDK'da mevcut değil).
+**Karar:** Deney matrisi: **Llama 3.1 8B** (Meta, genel), **DeepSeek-Coder 6.7B** (DeepSeek, kod-özelleşmiş), **Mistral 7B** (Mistral AI, genel) — tümü Ollama üzerinden local çalışır, ücretsiz.
+**Gerekçe:** Gemini API free tier yeni key'lerde aktif olmuyor (429 RESOURCE_EXHAUSTED). Tamamen local Ollama modelleriyle devam edildi. Llama 3.1 8B (Meta, genel) vs DeepSeek-Coder 6.7B (kod-özelleşmiş) vs Mistral 7B (Avrupa, genel) → farklı provider + genel vs kod-özelleşmiş karşılaştırması akademik olarak güçlü argüman sağlar. M4 + 16GB RAM ile tüm modeller Metal GPU'da hızlı çalışır.
+**Reddedilen Alternatifler:** Gemini modelleri (API key rate limit sorunu), GPT-4o (ücretli), Phi-4 Mini (model boyutu etkisi ayrı tez konusu), CodeGemma (arkadaş kullanıyor, çakışma).
 **Etkisi:** `code_generator.py`'e Gemini client + Ollama REST API client entegre edilecek. Deney klasörleri güncellendi.
 
 ---

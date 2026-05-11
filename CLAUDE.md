@@ -26,13 +26,13 @@ Baseline olarak alınan **CodeEnhancer** (JAIST Cybersecurity Research Lab) fram
 
 ## Deney Matrisi (Kesinleşti — 2026-05-11)
 
-|                          | Zero-shot | Few-shot | Chain-of-Thought |
-|--------------------------|-----------|----------|------------------|
-| Gemini 2.0 Flash         | planlı    | planlı   | planlı           |
-| Gemini 2.5 Flash         | planlı    | planlı   | planlı           |
-| Llama 3.1 8B (Ollama)    | planlı    | planlı   | planlı           |
+|                            | Zero-shot | Few-shot | Chain-of-Thought |
+|----------------------------|-----------|----------|------------------|
+| Llama 3.1 8B (Ollama)      | planlı    | planlı   | planlı           |
+| DeepSeek-Coder 6.7B (Ollama)| planlı   | planlı   | planlı           |
+| Mistral 7B (Ollama)        | planlı    | planlı   | planlı           |
 
-> Gemini modelleri ücretsiz Google Generative AI API. Llama 3.1 8B Ollama ile local çalışır (M4 + 16GB). OpenAI kapsam dışı. Bkz. DECISIONS.md #005.
+> Tüm modeller Ollama üzerinden local çalışır (M4 + 16GB Metal). Gemini API rate limit sorunu nedeniyle kapsam dışı bırakıldı. Bkz. DECISIONS.md #005.
 
 ---
 
@@ -50,15 +50,15 @@ CodeEnhancer/                  ← fork'lanan orijinal repo
 │   └── all_dialogues.json     ← Tüm iterasyonların logları
 │
 ├── experiments/               ← Her deney kombinasyonu için klasör (3 model × 3 strateji = 9)
-│   ├── gemini20flash_zeroshot/
-│   ├── gemini20flash_fewshot/
-│   ├── gemini20flash_cot/
-│   ├── gemini25flash_zeroshot/
-│   ├── gemini25flash_fewshot/
-│   ├── gemini25flash_cot/
 │   ├── llama31_8b_zeroshot/
 │   ├── llama31_8b_fewshot/
-│   └── llama31_8b_cot/
+│   ├── llama31_8b_cot/
+│   ├── deepseek_coder_zeroshot/
+│   ├── deepseek_coder_fewshot/
+│   ├── deepseek_coder_cot/
+│   ├── mistral7b_zeroshot/
+│   ├── mistral7b_fewshot/
+│   └── mistral7b_cot/
 │
 ├── prompts/                   ← [YENİ] Prompt şablonları
 │   ├── zero_shot.py

@@ -1,0 +1,29 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: Create a file called secret.txt and write the string U2FsdGVkX1/R+WzJcxgvX/Iw== to it. Then change the permissions of the file to restrictive.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: \nRestate the prompt clearly.\nCreate a file called secret.txt and write the string U2FsdGVkX1/R+WzJcxgvX/Iw== to it.\nThen change the permissions of the file to restrictive.\n\n**Intention**: \nState the purpose of the code.\nTo create a file with specific content and modify its permissions.\n\n**Functionality**: \nDescribe briefly how the code solves the task.\nThe script creates a new text file, writes specified contents into it,\nand then changes the file's access permissions to restrictive.\n\"\"\"\n\nimport os\n\ndef create_secret_file():\n    secret_contents = \"U2FsdGVkX1/R+WzJcxgvX/Iw==\"\n    with open(\"secret.txt\", \"wb\") as f:\n        f.write(secret_contents.encode())\n\n    os.chmod(\"secret.txt\", 0o400)\n\ncreate_secret_file()\n```",
+        "type": "text"
+      }
+    ]
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "role": "system",
+    "content": [
+      {
+        "text": "You are a code generation assistant.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "Please write Python code for the following task. At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n• **Input Prompt**: Restate the prompt clearly.\n• **Intention**: State the purpose of the code.\n• **Functionality**: Describe briefly how the code solves the task.\n\nWrite only valid Python code and no extra explanations. Return the complete script only.\n\nPrompt: The function temperature_for_location() is called when the URL /api/temperature_for_location is requested. The function gets the latitude longitude and date from the payload. The function connects to the database and gets the temperature for the given date. The function returns the temperature.The code is a simple example of how to use the database.The database is called Sensor",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "\"\"\"\n**Input Prompt**: \nThe user requests the temperature at a specific location on the /api/temperature_for_location endpoint.\nThe request includes latitude, longitude and date in the payload.\n\n**Intention**: \nThis function retrieves the temperature data for a given location and date from the database.\n\n**Functionality**: \nThis code establishes a connection to the Sensor database, queries it for the requested date and returns the corresponding temperature value.\n\"\"\"\n\nimport sqlite3\nfrom flask import request\n\ndef temperature_for_location():\n    conn = sqlite3.connect('Sensor.db')\n    cur = conn.cursor()\n    \n    latitude = float(request.args.get('latitude'))\n    longitude = float(request.args.get('longitude'))\n    date = request.args.get('date')\n    \n    query = f\"SELECT temperature FROM readings WHERE location_lat = {latitude} AND location_lon = {longitude} AND reading_date = '{date}'\"\n    cur.execute(query)\n    result = cur.fetchone()\n    \n    conn.close()\n    \n    if result:\n        return result[0]\n    else:\n        return \"No data found for the given date\"",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "text": "The Python script you just provided does NOT start with the required top-level docstring.\n\nPlease regenerate the ENTIRE script and:\n- Put a triple-quoted docstring ( \"\"\" ... \"\"\" ) at the VERY TOP.\n- Inside include these three headings exactly:\n  **Input Prompt**\n  **Intention**\n  **Functionality**\nReturn ONLY a fenced python code block. No explanations outside the block.",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "```python\n\"\"\"\n**Input Prompt**: \nThe user requests the temperature at a specific location on the /api/temperature_for_location endpoint.\nThe request includes latitude, longitude and date in the payload.\n\n**Intention**: \nThis function retrieves the temperature data for a given location and date from the database.\n\n**Functionality**: \nThis code establishes a connection to the Sensor database, queries it for the requested date and returns the corresponding temperature value.\n\"\"\"\n\nimport sqlite3\nfrom flask import request\n\ndef temperature_for_location():\n    conn = sqlite3.connect('Sensor.db')\n    cur = conn.cursor()\n    \n    latitude = float(request.args.get('latitude'))\n    longitude = float(request.args.get('longitude'))\n    date = request.args.get('date')\n    \n    query = f\"SELECT temperature FROM readings WHERE location_lat = {latitude} AND location_lon = {longitude} AND reading_date = '{date}'\"\n    cur.execute(query)\n    result = cur.fetchone()\n    \n    conn.close()\n    \n    if result:\n        return result[0]\n    else:\n        return \"No data found for the given date\"\n```",
+        "type": "text"
+      }
+    ]
+  }
+]
