@@ -117,7 +117,7 @@ Her deney kombinasyonu için şunlar raporlanacak:
 ## Önemli Bağlantılar
 
 - Orijinal repo: https://github.com/cyb3rlab/CodeEnhancer
-- Fork: [Kendi fork URL'ni buraya ekle]
+- Fork: https://github.com/Aliekinozcetin/CodeEnhancer
 - LLMSecEval veri seti: https://github.com/tuhh-softsec/LLMSecEval
 - Mid-phase teslim tarihi: 3 gün sonra
 - Final teslim tarihi: ~1.5 ay sonra
