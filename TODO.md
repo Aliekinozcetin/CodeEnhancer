@@ -18,8 +18,6 @@
 ## 🧪 Deneyler — Devam Eden
 
 ### Deney Çalıştırma
-- ✅ 15 prompt seçildi → `data/mid_phase_prompts.json` (12 CWE, katmanlı örnekleme, seed=42)
-- ✅ 3 model × 3 strateji = 9 deney, **135 kod dosyası üretildi**
 - 🔄 Tüm deneylerin validasyonu çalışıyor (`python3 code_validator.py`)
 - [ ] 150 prompt → final için
 
@@ -66,7 +64,7 @@
 
 ### Veri & Deneyler
 - ✅ LLMSecEval veri seti indirildi (`data/llmseceval/`, 150 prompt, 18 CWE)
-- ✅ 15 prompt seçildi: `data/select_prompts.py` + `data/mid_phase_prompts.json`
+- ✅ 15 prompt seçildi: `data/select_prompts.py` + `data/mid_phase_prompts.json` (12 CWE, katmanlı örnekleme, seed=42)
 - ✅ 135 kod dosyası üretildi (9 deney × 15 prompt, tümü success)
 
 ### Kararlar
