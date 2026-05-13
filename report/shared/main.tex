@@ -112,11 +112,9 @@ Each branch runs a 3×3 design (3 models × 3 strategies) × 15 prompts = \textb
 
 All files were validated through the full pipeline: Bandit + Pylint SAST $\rightarrow$ LLM repair loop (MAX\_ATTEMPTS=5) $\rightarrow$ functional correctness check.
 
-\subsection*{Aggregated Results by Model (across branches)}
-
 \begin{table}[h]
 \centering
-\caption{Model-level averages across all 3 strategies, 15 prompts each}
+\caption{Aggregated results by model across both branches (averaged over 3 strategies, 15 prompts each)}
 \begin{tabular}{llcccc}
 \toprule
 \textbf{Model} & \textbf{Type} & \textbf{Bandit@0 (\%)} & \textbf{Resolution (\%)} & \textbf{Unresolved (\%)} & \textbf{Avg Iter} \\
@@ -131,42 +129,22 @@ Llama 3.1 8B        & General & 44.4 & 15.6          & 84.4 & 4.73          \\
 \label{tab:model_summary}
 \end{table}
 
-\subsection*{Strategy-Level Summary (Branch A — Llama / DeepSeek / Mistral)}
-
 \begin{table}[h]
 \centering
-\caption{Strategy averages, Branch A (3 models × 15 prompts each)}
+\caption{Strategy-level averages across all 5 models (15 prompts each)}
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Strategy} & \textbf{Bandit@0 (\%)} & \textbf{Resolution (\%)} & \textbf{Unresolved (\%)} & \textbf{Avg Iter} \\
 \midrule
-Zero-shot        & 42.2 & 35.5 & 64.5 & 4.09 \\
-Few-shot         & 28.9 & 37.8 & 62.2 & 3.84 \\
-Chain-of-Thought & 33.3 & 37.8 & 62.2 & 3.96 \\
+Zero-shot        & 42.7 & 52.0 & 48.0 & 3.47 \\
+Few-shot         & 37.3 & 54.7 & 45.3 & 3.28 \\
+Chain-of-Thought & 32.0 & 53.3 & 46.7 & 3.36 \\
 \bottomrule
 \end{tabular}
-\label{tab:strategy_a}
+\label{tab:strategy_summary}
 \end{table}
 
-\subsection*{Strategy-Level Summary (Branch B — Qwen / Llama / Gemma)}
-
-\begin{table}[h]
-\centering
-\caption{Strategy averages, Branch B (3 models × 15 prompts each)}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Strategy} & \textbf{Bandit@0 (\%)} & \textbf{Resolution (\%)} & \textbf{Unresolved (\%)} & \textbf{Avg Iter} \\
-\midrule
-Zero-shot        & 37.8 & 51.1 & 48.9 & 3.36 \\
-Few-shot         & 46.7 & 53.3 & 46.7 & 3.29 \\
-Chain-of-Thought & 28.9 & 51.1 & 48.9 & 3.31 \\
-\bottomrule
-\end{tabular}
-\label{tab:strategy_b}
-\end{table}
-
-\subsection*{Key Findings}
-
+\textbf{Key findings:}
 \begin{enumerate}[noitemsep]
     \item \textbf{Code-specialized models lead in resolution} — Qwen 2.5 Coder (88.9\%) outperforms all others, confirming that code-domain pretraining improves iterative security repair. Notably, DeepSeek-Coder (20.0\%) does not share this advantage, suggesting that code specialization alone is insufficient without strong instruction-following.
     \item \textbf{Mistral 7B is the top general-purpose model} — 75.6\% resolution with the lowest average iteration count (2.62) among general-purpose models, suggesting strong instruction compliance in the repair loop.
@@ -193,7 +171,7 @@ Chain-of-Thought & 28.9 & 51.1 & 48.9 & 3.31 \\
     \item \textbf{CoT depth} — 2-step vs.\ 4-step CoT on 15-prompt subset to measure cognitive load impact
     \item \textbf{Few-shot example order} — 3 permutations to measure sequence bias
     \item \textbf{Iteration cap} — MAX\_ATTEMPTS=3 vs.\ 5 to assess compute-to-resolution ratio
-    \item \textbf{Cross-model judge} — Compare self-judge vs.\ Qwen-as-judge resolution rates for Llama and DeepSeek
+    \item \textbf{Cross-model judge} — Compare self-judge vs.\ Qwen-as-judge resolution rates for Llama~3.1 and DeepSeek-Coder to isolate calibration bias
 \end{itemize}
 
 % ════════════════════════════════════════════
