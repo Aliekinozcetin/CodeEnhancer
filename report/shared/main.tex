@@ -85,7 +85,7 @@ CWE-798 & Hard-coded Credentials           & 1 \\
 \section{Literature Review Progress}
 % ════════════════════════════════════════════
 
-Five papers directly inform the methodology: Pearce et al.\ \cite{pearce2022asleep} show GitHub Copilot produces vulnerable code in \textasciitilde{}40\% of scenarios, motivating iterative repair pipelines. Tony et al.\ \cite{tony2023llmseceval} introduce LLMSecEval and report a 72\% Bandit hit rate on ChatGPT, which is the direct baseline for comparison. Nishida et al.\ \cite{nishida2024codeenhancer} propose the CodeEnhancer architecture; our project implements and extends their Stage 1 pipeline. Brown et al.\ \cite{brown2020gpt3} and Wei et al.\ \cite{wei2022cot} provide the theoretical foundation for our few-shot and chain-of-thought prompt formulations, respectively.
+Five papers directly inform the methodology: Pearce et al.~\cite{pearce2022asleep} show GitHub Copilot produces vulnerable code in $\sim$40\% of scenarios, motivating iterative repair pipelines. Tony et al.~\cite{tony2023llmseceval} introduce LLMSecEval and report a 72\% Bandit hit rate on ChatGPT, which is the direct baseline for comparison. Nishida et al.~\cite{nishida2024codeenhancer} propose the CodeEnhancer architecture; our project implements and extends their Stage 1 pipeline. Brown et al.~\cite{brown2020gpt3} and Wei et al.~\cite{wei2022cot} provide the theoretical foundation for our few-shot and chain-of-thought prompt formulations, respectively.
 
 These papers collectively justify our technical direction: evaluating whether prompting strategies can act as a substitute for computationally expensive fine-tuning in security-aware code generation.
 
@@ -102,7 +102,7 @@ Five open-source models were evaluated across two experiment branches, all runni
     \item \textbf{General-purpose:} Llama 3.1 8B (both branches), Gemma 2 9B (Branch B), Mistral 7B (Branch A)
 \end{itemize}
 
-Three prompting strategies are implemented in \texttt{prompts/}: \textbf{Zero-shot} (system prompt only, no security instruction), \textbf{Few-shot} (3 secure examples covering CWE-78, CWE-89, CWE-502, following Brown et al.\ \cite{brown2020gpt3}), and \textbf{Chain-of-Thought} (4-step security reasoning template, following Wei et al.\ \cite{wei2022cot}).
+Three prompting strategies are implemented in \texttt{prompts/}: \textbf{Zero-shot} (system prompt only, no security instruction), \textbf{Few-shot} (3 secure examples covering CWE-78, CWE-89, CWE-502, following Brown et al.~\cite{brown2020gpt3}), and \textbf{Chain-of-Thought} (4-step security reasoning template, following Wei et al.~\cite{wei2022cot}).
 
 Each branch runs a 3×3 design (3 models × 3 strategies) × 15 prompts = \textbf{135 generated files per branch}, for a combined total of \textbf{270 evaluated files}.
 
