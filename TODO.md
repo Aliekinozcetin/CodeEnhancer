@@ -1,18 +1,19 @@
 # TODO.md — CodeEnhancer Comparative Study
-> Son güncelleme: 2026-05-11 (rapor)
+> Son güncelleme: 2026-05-13
 > Claude Code: Bu dosyayı yaptığın her değişiklikten sonra güncelle. Tamamlananları ✅, devam edenleri 🔄, bloke olanları 🔴 ile işaretle.
 
 ---
 
-## 🚨 ACİL — Mid-Phase Report (3 gün içinde)
+## ✅ Mid-Phase Report — TAMAMLANDI
 
-- ✅ GitHub fork URL'si CLAUDE.md'ye eklendi (https://github.com/Aliekinozcetin/CodeEnhancer)
-- ✅ Repo local'de çalışıyor: `.venv/` kurulu, `source .venv/bin/activate`
-- ✅ Tüm deneylerin validasyonu tamamlandı (`python3 code_validator.py`, 9 kombinasyon × 15 prompt)
-- ✅ `compare_results.py` çalıştırıldı → `analysis/comparison_report.json` üretildi
-- ✅ `visualize.py` çalıştırıldı → 5 grafik üretildi (`analysis/figures/`)
-- ✅ Mid-phase report yazıldı: `report/main.tex` (11 bölüm, Overleaf için)
-- 🔄 GitHub'a düzenli commit at (commit geçmişi hoca tarafından izleniyor)
+- ✅ GitHub fork URL'si CLAUDE.md'ye eklendi
+- ✅ Repo local'de çalışıyor: `.venv/` kurulu
+- ✅ Validasyon tamamlandı (9 kombinasyon × 15 prompt)
+- ✅ `compare_results.py` → `analysis/comparison_report.json`
+- ✅ `visualize.py` → 5 grafik (`analysis/figures/`)
+- ✅ Branch A raporu: `report/my_report.tex`
+- ✅ Harmanlanmış rapor: `report/shared/main.tex` (5 model, 2 branch)
+- 🔄 GitHub commit geçmişi aktif tutulyor
 
 ---
 

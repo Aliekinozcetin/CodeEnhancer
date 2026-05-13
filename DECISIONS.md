@@ -128,13 +128,13 @@ _(Şu an bekleyen karar yok)_
 
 ---
 
-### #010 — Mid-Phase Rapor Formatı
-**Tarih:** 2026-05-11
+### #010 — Mid-Phase Rapor Formatı ve Yapısı
+**Tarih:** 2026-05-13
 **Durum:** ✅ Kesinleşti
-**Karar:** Mid-phase raporu `report/main.tex` olarak Overleaf-uyumlu LaTeX formatında yazıldı. 11 bölüm, hocanın istediği yapıya uygun. Yazı boyutu 10pt, sayfa sayısı ~4-5.
-**Gerekçe:** Hoca direktifi — belirlenen 11 bölüm yapısı takip edildi. İçindekiler tablosu kaldırıldı, metinler sıkıştırıldı.
-**Reddedilen Alternatifler:** Word/PDF doğrudan — LaTeX tercih edildi akademik standart için.
-**Etkisi:** `report/` klasörü oluşturuldu, `report/main.tex` commit edildi.
+**Karar:** İki ayrı rapor dosyası tutulacak: `report/my_report.tex` (Branch A standalone, 3 model) ve `report/shared/main.tex` (harmanlanmış, 5 model, 2 branch). Her ikisi de Overleaf-uyumlu LaTeX, 11 bölüm, hocanın istediği yapıya uygun.
+**Gerekçe:** Branch A (Llama/DeepSeek/Mistral) ve Branch B (Qwen/Llama/Gemma) sonuçları ayrı tutulurken harmanlanmış rapor birleşik karşılaştırmayı sunar. Hardware notu dahil edilmedi — Llama'nın düşük performansı her iki branch'te de loop divergence kaynaklı, hardware'e özgü değil.
+**Reddedilen Alternatifler:** Tek rapor — branch ayrımını gizler. Hardware notu dahil etmek — metrikler karşılaştırılamaz hale gelir.
+**Etkisi:** `report/my_report.tex`, `report/shared/main.tex` commit edildi; eski `report/main.tex` silindi.
 
 ---
 

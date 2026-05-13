@@ -24,15 +24,23 @@ Baseline olarak alınan **CodeEnhancer** (JAIST Cybersecurity Research Lab) fram
 
 ---
 
-## Deney Matrisi (Kesinleşti — 2026-05-11)
+## Deney Matrisi (Tamamlandı — 2026-05-13)
 
-|                            | Zero-shot | Few-shot | Chain-of-Thought |
-|----------------------------|-----------|----------|------------------|
-| Llama 3.1 8B (Ollama)      | planlı    | planlı   | planlı           |
-| DeepSeek-Coder 6.7B (Ollama)| planlı   | planlı   | planlı           |
-| Mistral 7B (Ollama)        | planlı    | planlı   | planlı           |
+### Branch A (bu repo — main)
+|                             | Zero-shot | Few-shot | Chain-of-Thought |
+|-----------------------------|-----------|----------|------------------|
+| Llama 3.1 8B (Ollama)       | ✅        | ✅       | ✅               |
+| DeepSeek-Coder 6.7B (Ollama)| ✅        | ✅       | ✅               |
+| Mistral 7B (Ollama)         | ✅        | ✅       | ✅               |
 
-> Tüm modeller Ollama üzerinden local çalışır (M4 + 16GB Metal). Gemini API rate limit sorunu nedeniyle kapsam dışı bırakıldı. Bkz. DECISIONS.md #005.
+### Branch B (AliSezer_Experiments)
+|                             | Zero-shot | Few-shot | Chain-of-Thought |
+|-----------------------------|-----------|----------|------------------|
+| Qwen 2.5 Coder 7B (Ollama)  | ✅        | ✅       | ✅               |
+| Llama 3.1 8B (Ollama)       | ✅        | ✅       | ✅               |
+| Gemma 2 9B (Ollama)         | ✅        | ✅       | ✅               |
+
+> Tüm modeller Ollama üzerinden local çalışır. Gemini API rate limit sorunu nedeniyle kapsam dışı. Bkz. DECISIONS.md #005.
 
 ---
 
@@ -50,27 +58,36 @@ CodeEnhancer/                  ← fork'lanan orijinal repo
 │   └── all_dialogues.json     ← Tüm iterasyonların logları
 │
 ├── experiments/               ← Her deney kombinasyonu için klasör (3 model × 3 strateji = 9)
-│   ├── llama31_8b_zeroshot/
-│   ├── llama31_8b_fewshot/
-│   ├── llama31_8b_cot/
-│   ├── deepseek_coder_zeroshot/
-│   ├── deepseek_coder_fewshot/
-│   ├── deepseek_coder_cot/
-│   ├── mistral7b_zeroshot/
-│   ├── mistral7b_fewshot/
-│   └── mistral7b_cot/
+│   ├── llama31_8b_zero_shot/
+│   ├── llama31_8b_few_shot/
+│   ├── llama31_8b_chain_of_thought/
+│   ├── deepseek_coder_zero_shot/
+│   ├── deepseek_coder_few_shot/
+│   ├── deepseek_coder_chain_of_thought/
+│   ├── mistral7b_zero_shot/
+│   ├── mistral7b_few_shot/
+│   └── mistral7b_chain_of_thought/
 │
 ├── prompts/                   ← [YENİ] Prompt şablonları
 │   ├── zero_shot.py
 │   ├── few_shot.py
 │   └── chain_of_thought.py
 │
-├── analysis/                  ← [YENİ] Sonuç analiz scriptleri
+├── analysis/                  ← Sonuç analiz scriptleri
 │   ├── compare_results.py
-│   └── visualize.py
+│   ├── visualize.py
+│   ├── comparison_report.json ← üretildi (gitignore'da değil)
+│   └── figures/               ← üretilen grafikler (gitignored)
 │
-├── data/                      ← [YENİ] Veri setleri
-│   └── llmseceval/
+├── data/                      ← Veri setleri
+│   ├── llmseceval/            ← 150 prompt, 18 CWE (indirildi)
+│   ├── select_prompts.py
+│   └── mid_phase_prompts.json ← 15 prompt, seed=42
+│
+├── report/
+│   ├── my_report.tex          ← Branch A standalone raporu
+│   └── shared/
+│       └── main.tex           ← Harmanlanmış rapor (5 model, 2 branch)
 │
 ├── CLAUDE.md                  ← Bu dosya
 ├── TODO.md                    ← Görev listesi (her değişiklikte güncelle)
@@ -119,5 +136,5 @@ Her deney kombinasyonu için şunlar raporlanacak:
 - Orijinal repo: https://github.com/cyb3rlab/CodeEnhancer
 - Fork: https://github.com/Aliekinozcetin/CodeEnhancer
 - LLMSecEval veri seti: https://github.com/tuhh-softsec/LLMSecEval
-- Mid-phase teslim tarihi: 3 gün sonra
-- Final teslim tarihi: ~1.5 ay sonra
+- Mid-phase teslim tarihi: ✅ Tamamlandı (2026-05-13)
+- Final teslim tarihi: ~1.5 ay sonra (yaklaşık 2026-07-01)
