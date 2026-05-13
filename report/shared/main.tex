@@ -1,0 +1,276 @@
+\documentclass[11pt,a4paper]{article}
+
+% ─── Packages ───
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{parskip}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    urlcolor=blue!70!black,
+    citecolor=blue!70!black
+}
+
+\title{\textbf{Mid-Phase Progress Report} \\ \large CodeEnhancer Model Comparison}
+\author{
+    \normalsize \textbf{Group Members:} Ali Ekin Özçetin, Ali Sezer Uysal, Mert Güner \\
+    \normalsize \textbf{Course:} CENG 467 — Natural Language Processing \\
+    \normalsize \href{https://github.com/Aliekinozcetin/CodeEnhancer}{github.com/Aliekinozcetin/CodeEnhancer}
+}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+% ════════════════════════════════════════════
+\section{Project Title, Group Members, and Problem Definition}
+% ════════════════════════════════════════════
+
+\textbf{Project Title:} CodeEnhancer Model Comparison
+
+\textbf{Group Members:} Ali Ekin Özçetin, Ali Sezer Uysal, Mert Güner
+
+\textbf{Problem Definition:} Large Language Models (LLMs) frequently generate code containing critical security vulnerabilities (CWEs). This project evaluates whether prompting strategy (zero-shot, few-shot, chain-of-thought) and model choice influence the frequency and resolvability of security issues in LLM-generated Python code.
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Task:} Code generation paired with automated evaluation and iterative repair.
+    \item \textbf{Importance:} As AI-assisted coding becomes ubiquitous, ensuring the security of generated code without human intervention is a critical challenge.
+    \item \textbf{Pipeline:} The system receives a natural language instruction and outputs a Python script. If vulnerabilities are detected via SAST, tool outputs are fed back as input for the next generation cycle.
+    \item \textbf{Technical Challenge:} Model self-assessment calibration — models must not only generate functional code but also accurately judge their own patches without falling into infinite repair loops or hallucinating false vulnerabilities.
+\end{itemize}
+
+% ════════════════════════════════════════════
+\section{Dataset / Benchmark Status}
+% ════════════════════════════════════════════
+
+We use the \textbf{LLMSecEval} benchmark (Tony et al., 2023): 150 Python prompts across 18 CWE categories drawn from the CWE Top 25. For this mid-phase, \textbf{15 prompts} were selected via stratified sampling (\texttt{seed=42}), covering 12 distinct CWE categories. The subset is saved in \texttt{data/mid\_phase\_prompts.json} and shared as a control variable across both experiment branches.
+
+\begin{table}[h]
+\centering
+\caption{CWE distribution of the 15 mid-phase prompts}
+\begin{tabular}{lll}
+\toprule
+\textbf{CWE ID} & \textbf{Vulnerability Type} & \textbf{Count} \\
+\midrule
+CWE-78  & OS Command Injection             & 2 \\
+CWE-89  & SQL Injection                    & 2 \\
+CWE-502 & Deserialization of Untrusted Data & 2 \\
+CWE-22  & Path Traversal                   & 1 \\
+CWE-79  & Cross-Site Scripting             & 1 \\
+CWE-434 & Unrestricted File Upload         & 1 \\
+CWE-306 & Missing Authentication           & 1 \\
+CWE-200 & Info Exposure                    & 1 \\
+CWE-20  & Improper Input Validation        & 1 \\
+CWE-732 & Incorrect Permissions            & 1 \\
+CWE-522 & Insufficiently Protected Credentials & 1 \\
+CWE-798 & Hard-coded Credentials           & 1 \\
+\bottomrule
+\end{tabular}
+\label{tab:cwe_dist}
+\end{table}
+
+\textbf{Known dataset issue:} CWE-78 prompts exhibit strong adversarial bias, forcing almost all models toward \texttt{os.system()} usage, creating near-inevitable SAST triggers regardless of prompting strategy.
+
+% ════════════════════════════════════════════
+\section{Literature Review Progress}
+% ════════════════════════════════════════════
+
+Five papers directly inform the methodology: Pearce et al.\ \cite{pearce2022asleep} show GitHub Copilot produces vulnerable code in \textasciitilde{}40\% of scenarios, motivating iterative repair pipelines. Tony et al.\ \cite{tony2023llmseceval} introduce LLMSecEval and report a 72\% Bandit hit rate on ChatGPT, which is the direct baseline for comparison. Nishida et al.\ \cite{nishida2024codeenhancer} propose the CodeEnhancer architecture; our project implements and extends their Stage 1 pipeline. Brown et al.\ \cite{brown2020gpt3} and Wei et al.\ \cite{wei2022cot} provide the theoretical foundation for our few-shot and chain-of-thought prompt formulations, respectively.
+
+These papers collectively justify our technical direction: evaluating whether prompting strategies can act as a substitute for computationally expensive fine-tuning in security-aware code generation.
+
+Planned additions for the final report: Kojima et al.\ zero-shot CoT (2022) and HumanEval-Security benchmarks.
+
+% ════════════════════════════════════════════
+\section{Baseline Models and Prompting Strategies}
+% ════════════════════════════════════════════
+
+Five open-source models were evaluated across two experiment branches, all running locally via Ollama to eliminate API non-determinism:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Code-specialized:} Qwen 2.5 Coder 7B (Branch B), DeepSeek-Coder 6.7B (Branch A)
+    \item \textbf{General-purpose:} Llama 3.1 8B (both branches), Gemma 2 9B (Branch B), Mistral 7B (Branch A)
+\end{itemize}
+
+Three prompting strategies are implemented in \texttt{prompts/}: \textbf{Zero-shot} (system prompt only, no security instruction), \textbf{Few-shot} (3 secure examples covering CWE-78, CWE-89, CWE-502, following Brown et al.\ \cite{brown2020gpt3}), and \textbf{Chain-of-Thought} (4-step security reasoning template, following Wei et al.\ \cite{wei2022cot}).
+
+Each branch runs a 3×3 design (3 models × 3 strategies) × 15 prompts = \textbf{135 generated files per branch}, for a combined total of \textbf{270 evaluated files}.
+
+% ════════════════════════════════════════════
+\section{Initial Experimental Results}
+% ════════════════════════════════════════════
+
+All files were validated through the full pipeline: Bandit + Pylint SAST $\rightarrow$ LLM repair loop (MAX\_ATTEMPTS=5) $\rightarrow$ functional correctness check.
+
+\subsection*{Aggregated Results by Model (across branches)}
+
+\begin{table}[h]
+\centering
+\caption{Model-level averages across all 3 strategies, 15 prompts each}
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Model} & \textbf{Type} & \textbf{Bandit@0 (\%)} & \textbf{Resolution (\%)} & \textbf{Unresolved (\%)} & \textbf{Avg Iter} \\
+\midrule
+Qwen 2.5 Coder 7B   & Code    & 55.6 & \textbf{88.9} & 11.1 & \textbf{1.91} \\
+Mistral 7B          & General & 31.1 & 75.6          & 24.4 & 2.62          \\
+Gemma 2 9B          & General & 26.7 & 66.7          & 33.3 & 3.04          \\
+DeepSeek-Coder 6.7B & Code    & 28.9 & 20.0          & 80.0 & 4.53          \\
+Llama 3.1 8B        & General & 44.4 & 15.6          & 84.4 & 4.73          \\
+\bottomrule
+\end{tabular}
+\label{tab:model_summary}
+\end{table}
+
+\subsection*{Strategy-Level Summary (Branch A — Llama / DeepSeek / Mistral)}
+
+\begin{table}[h]
+\centering
+\caption{Strategy averages, Branch A (3 models × 15 prompts each)}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Strategy} & \textbf{Bandit@0 (\%)} & \textbf{Resolution (\%)} & \textbf{Unresolved (\%)} & \textbf{Avg Iter} \\
+\midrule
+Zero-shot        & 42.2 & 35.5 & 64.5 & 4.09 \\
+Few-shot         & 28.9 & 37.8 & 62.2 & 3.84 \\
+Chain-of-Thought & 33.3 & 37.8 & 62.2 & 3.96 \\
+\bottomrule
+\end{tabular}
+\label{tab:strategy_a}
+\end{table}
+
+\subsection*{Strategy-Level Summary (Branch B — Qwen / Llama / Gemma)}
+
+\begin{table}[h]
+\centering
+\caption{Strategy averages, Branch B (3 models × 15 prompts each)}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Strategy} & \textbf{Bandit@0 (\%)} & \textbf{Resolution (\%)} & \textbf{Unresolved (\%)} & \textbf{Avg Iter} \\
+\midrule
+Zero-shot        & 37.8 & 51.1 & 48.9 & 3.36 \\
+Few-shot         & 46.7 & 53.3 & 46.7 & 3.29 \\
+Chain-of-Thought & 28.9 & 51.1 & 48.9 & 3.31 \\
+\bottomrule
+\end{tabular}
+\label{tab:strategy_b}
+\end{table}
+
+\subsection*{Key Findings}
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Code-specialized models lead in resolution} — Qwen 2.5 Coder (88.9\%) outperforms all others, confirming that code-domain pretraining improves iterative security repair. Notably, DeepSeek-Coder (20.0\%) does not share this advantage, suggesting that code specialization alone is insufficient without strong instruction-following.
+    \item \textbf{Mistral 7B is the top general-purpose model} — 75.6\% resolution with the lowest average iteration count (2.62) among general-purpose models, suggesting strong instruction compliance in the repair loop.
+    \item \textbf{CoT reduces initial vulnerability rate} — Chain-of-Thought prompting achieves the lowest Bandit@0 in Branch B (28.9\%), but resolution rates across strategies are comparable (35.5–37.8\% in Branch A; 51.1–53.3\% in Branch B), confirming that model capability dominates over prompting strategy in the repair phase.
+    \item \textbf{CWE-78 is universally persistent} — OS Command Injection is the most frequently flagged category across all models and strategies, due to prompt-induced bias toward \texttt{os.system()} usage.
+\end{enumerate}
+
+% ════════════════════════════════════════════
+\section{Planned Improvements and Technical Direction}
+% ════════════════════════════════════════════
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Decoupled judge architecture} — Using the generating model as its own judge introduces calibration bias. We plan to designate a single high-performing model (e.g., Qwen 2.5) as the universal LLM-Judge for all models.
+    \item \textbf{Scale to all 150 prompts} — Expand experiments to the full LLMSecEval Python subset for statistical power.
+    \item \textbf{Functional correctness} — Introduce pass@k via HumanEval to measure the security/functionality trade-off.
+    \item \textbf{Expanded few-shot coverage} — Add CWE-434 and CWE-22 examples to reduce hit rates for those persistent categories.
+\end{itemize}
+
+% ════════════════════════════════════════════
+\section{Ablation and Prompt Sensitivity Plan}
+% ════════════════════════════════════════════
+
+\begin{itemize}[noitemsep]
+    \item \textbf{CoT depth} — 2-step vs.\ 4-step CoT on 15-prompt subset to measure cognitive load impact
+    \item \textbf{Few-shot example order} — 3 permutations to measure sequence bias
+    \item \textbf{Iteration cap} — MAX\_ATTEMPTS=3 vs.\ 5 to assess compute-to-resolution ratio
+    \item \textbf{Cross-model judge} — Compare self-judge vs.\ Qwen-as-judge resolution rates for Llama and DeepSeek
+\end{itemize}
+
+% ════════════════════════════════════════════
+\section{Error Analysis and Generation Quality Analysis}
+% ════════════════════════════════════════════
+
+Three recurring failure patterns were identified in files unresolved after 5 iterations:
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Loop divergence (judge calibration failure)} — The model passes SAST but the LLM-Judge returns ``Incorrect'' repeatedly. Observed in Llama 3.1 8B and DeepSeek-Coder; the judge demands arbitrary library usage (e.g., Flask-WTF) rather than accepting functionally correct fixes.
+    \item \textbf{Partial / oscillating fix} — The model removes one Bandit issue but introduces another. Observed in DeepSeek-Coder for CWE-732/CWE-200 co-occurring files.
+    \item \textbf{Strategy paradox (Gemma 2)} — Gemma 2's resolution rate \emph{decreases} under CoT (60.0\%) vs.\ Zero-shot (66.7\%), despite CoT reducing initial Bandit findings. Multi-step reasoning appears to degrade coherence during the repair phase for this model.
+\end{enumerate}
+
+A full qualitative analysis ($\geq$5 unresolved files per model per CWE) will be completed for the final report.
+
+% ════════════════════════════════════════════
+\section{Ethical Considerations and Bias}
+% ════════════════════════════════════════════
+
+\textbf{Dual-use:} All generated code is stored locally and used solely to measure vulnerability rates. LLMSecEval is a published academic benchmark; no novel exploit code is generated.
+
+\textbf{Measurement bias:} Bandit is rule-based and produces false positives (e.g., \texttt{debug=True} flagged HIGH in development contexts) and false negatives (logic flaws). The resolution rate measures \emph{Bandit-compliance}, not true security.
+
+\textbf{Model bias:} Performance differences may partly reflect English instruction-following quality rather than intrinsic security reasoning. Models differ in training data, instruction-tuning, and language mix.
+
+% ════════════════════════════════════════════
+\section{GitHub and Reproducibility Status}
+% ════════════════════════════════════════════
+
+Repository: \href{https://github.com/Aliekinozcetin/CodeEnhancer}{github.com/Aliekinozcetin/CodeEnhancer}. Branch A results are on \texttt{main}; Branch B results are on \texttt{AliSezer\_Experiments}. Both branches share \texttt{data/mid\_phase\_prompts.json}, all prompt templates, and \texttt{analysis/compare\_results.py} metric formulas as control variables.
+
+To reproduce Branch A:
+\begin{verbatim}
+git clone https://github.com/Aliekinozcetin/CodeEnhancer && cd CodeEnhancer
+python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+ollama pull llama3.1 && ollama pull deepseek-coder:6.7b && ollama pull mistral:7b
+python3 code_generator.py && python3 code_validator.py
+python3 analysis/compare_results.py && python3 analysis/visualize.py
+\end{verbatim}
+
+% ════════════════════════════════════════════
+\section{Current Challenges and Next Steps}
+% ════════════════════════════════════════════
+
+\textbf{Challenges:} (1) LLM-Judge calibration failure — self-assessment loop is unreliable for general-purpose models, inflating unresolved rates. (2) Compute time — 150 prompts × 5 models × 5 iterations scales to hundreds of hours of sequential local compute; batched overnight runs are planned. (3) CWE-200 false positives from logging statements inflate unresolved rates.
+
+\textbf{Next steps:} Merge branch data logs; decouple LLM-Judge role; run full 150-prompt batch; conduct qualitative error analysis ($\geq$5 files per model); draft final report in LNCS LaTeX template.
+
+% ════════════════════════════════════════════
+\begin{thebibliography}{9}
+
+\bibitem{pearce2022asleep}
+H.~Pearce, B.~Ahmad, B.~Tan, B.~Dolan-Gavitt, R.~Karri,
+``Asleep at the Keyboard? Assessing the Security of GitHub Copilot's Code Contributions,''
+\textit{IEEE S\&P}, 2022.
+
+\bibitem{tony2023llmseceval}
+C.~Tony, M.~Mutas, N.~Díaz Ferreyra, R.~Scandariato,
+``LLMSecEval: A Dataset of Natural Language Prompts for Security Evaluations,''
+\textit{MSR}, 2023.
+
+\bibitem{nishida2024codeenhancer}
+K.~Nishida, T.~Shibata, H.~Iida,
+``CodeEnhancer: Enhancing LLM-Generated Code for Security and Reliability,''
+\textit{JAIST Technical Report}, 2024.
+
+\bibitem{brown2020gpt3}
+T.~Brown et al.,
+``Language Models are Few-Shot Learners,''
+\textit{NeurIPS}, 2020.
+
+\bibitem{wei2022cot}
+J.~Wei et al.,
+``Chain-of-Thought Prompting Elicits Reasoning in Large Language Models,''
+\textit{NeurIPS}, 2022.
+
+\end{thebibliography}
+
+\end{document}
