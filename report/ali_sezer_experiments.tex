@@ -1,0 +1,394 @@
+\documentclass[12pt,a4paper]{article}
+
+% ─── Packages ───
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+% ─── Code listing style ───
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red!70!black},
+  frame=single,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  captionpos=b
+}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!70!black,
+  citecolor=blue!70!black,
+  urlcolor=blue!70!black
+}
+
+% ─── Title ───
+\title{%
+  \textbf{CodeEnhancer: Final Experiments Report} \\[6pt]
+  \large Evaluating Security-Aware Code Generation with \\
+  Ollama-Based Open-Source LLMs and an Independent LLM-Judge
+}
+\author{Ali Sezer}
+\date{June 2026}
+
+\begin{document}
+\maketitle
+
+% ============================================
+\begin{abstract}
+This report presents the final experimental results of the \textbf{CodeEnhancer} project's local evaluation pipeline. Five open-source large language models---Qwen 2.5 Coder 7B, Mistral 7B, DeepSeek-Coder 6.7B, Llama 3.1 8B, and Gemma 2 9B---were evaluated across three prompt engineering strategies (Zero-shot, Few-shot with 5 examples, Chain-of-Thought) using 81 Python prompts from the LLMSecEval benchmark (representing 1,215 scenarios). To eliminate self-assessment bias, we integrated \textbf{GPT-4o-mini} as an independent external LLM-Judge, while keeping local models responsible for code repair. Results show that \textbf{Qwen 2.5 Coder 7B} achieves the highest average resolution rate (80.2\%), followed closely by \textbf{DeepSeek-Coder 6.7B} (77.3\%) and \textbf{Llama 3.1 8B} (75.7\%). Most notably, transitioning to an independent judge completely resolved Llama 3.1's self-assessment false-negative bias, raising its resolution rate from 0\% in mid-phase experiments to 79.0\% in few-shot prompting. Analysis of few-shot generalization reveals that models successfully generalized secure code patterns to unseen CWEs without data leakage. Conversely, Chain-of-Thought prompting degraded performance for general-purpose models due to context distraction.
+\end{abstract}
+
+% ============================================
+\section{Introduction}
+\label{sec:intro}
+
+Large Language Models (LLMs) are increasingly used for automated code generation, yet their tendency to produce code containing common security vulnerabilities (CWEs) poses significant risks. This report documents the final results of the \textbf{local experiment branch} of the CodeEnhancer project, where code generation and SAST-based repairs are executed on-device using Ollama, while functional validity is audited by an independent cloud-based judge. 
+
+\subsection{Research Questions}
+\begin{enumerate}[label=\textbf{RQ\arabic*}:]
+  \item How do different open-source LLMs compare in their ability to generate secure and functional Python code?
+  \item Does prompt engineering strategy (Zero-shot, Few-shot, Chain-of-Thought) significantly affect the security of generated code?
+  \item Can open-source models generalize secure coding patterns to unseen vulnerability types in a few-shot setup?
+  \item How effective is an iterative SAST + LLM-Judge feedback loop at resolving initially vulnerable code when self-assessment bias is eliminated?
+\end{enumerate}
+
+\subsection{Scope of This Report}
+This report covers final experiments conducted on the \texttt{AliSezer\_Experiments} branch. All 1,215 scenarios have been successfully generated, verified, and analyzed. These results will be merged with the collaborator's branch to compile the CENG467 final project report.
+
+% ============================================
+\section{Experimental Setup}
+\label{sec:setup}
+
+\subsection{Infrastructure}
+All experiments were executed locally on a single workstation with cloud-based API judge integration:
+\begin{itemize}
+  \item \textbf{Local Runtime:} Ollama v0.x with OpenAI-compatible REST API (\texttt{localhost:11434/v1}).
+  \item \textbf{Models Under Test Settings:} Temperature = 0 (deterministic), Max Tokens = 2048, Context Window (\texttt{num\_ctx}) = 8192 (ensuring all models have identical context limits for few-shot prompts).
+  \item \textbf{External LLM-Judge:} GPT-4o-mini (platform.openai.com) utilizing JSON structured output mode.
+  \item \textbf{Total Judge API Cost:} \$0.34 for all 1,215 scenarios.
+\end{itemize}
+
+\subsection{Models Under Test}
+Table~\ref{tab:models} summarizes the five open-source models evaluated.
+
+\begin{table}[H]
+\centering
+\caption{Models evaluated in the local experiment pipeline.}
+\label{tab:models}
+\begin{tabular}{lllr}
+\toprule
+\textbf{Key} & \textbf{Model} & \textbf{Specialization} & \textbf{Parameters} \\
+\midrule
+\texttt{qwen25coder\_7b}      & Qwen 2.5 Coder  & Code generation & 7B \\
+\texttt{deepseek\_coder\_6\_7b} & DeepSeek-Coder  & Code generation & 6.7B \\
+\texttt{llama31\_8b}           & Llama 3.1       & General-purpose  & 8B \\
+\texttt{gemma2\_9b}            & Gemma 2         & General-purpose  & 9B \\
+\texttt{mistral\_7b}           & Mistral 7       & General-purpose  & 7B \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Dataset}
+The dataset consists of all \textbf{81 unique Python prompts} in the \textbf{LLMSecEval} benchmark. C-language prompts (67 prompts) were excluded because the evaluation pipeline relies on Python-specific SAST tools (Bandit and Pylint) and Python imports. Stratified sampling duplicates were removed, yielding exactly 81 unique Python prompts across 12 CWE categories.
+
+\subsection{Prompt Strategies}
+\label{sec:strategies}
+Three prompt engineering strategies were implemented under \texttt{prompts/}:
+
+\paragraph{Zero-shot.} The model receives only the task description with formatting instructions. No examples or security guidance is provided. System prompt: \textit{``You are a code generation assistant.''}
+
+\paragraph{Few-shot.} Five secure code examples (covering CWE-78, CWE-89, CWE-502, and newly added CWE-434 file upload and CWE-22 path traversal) are prepended. These examples demonstrate the expected docstring and secure coding patterns. System prompt: \textit{``You are a secure code generation assistant.''}
+
+\paragraph{Chain-of-Thought (CoT).} The model is instructed to follow a four-step reasoning process (Identify inputs, Identify CWE risks, Select mitigations, Write secure code). System prompt: \textit{``You are a security-aware code generation assistant.''}
+
+% ============================================
+\section{Pipeline Architecture}
+\label{sec:pipeline}
+
+The pipeline consists of three stages, orchestrated by \texttt{run\_final\_experiments.ps1}:
+
+\subsection{Stage 1: Code Generation (\texttt{code\_generator.py})}
+For each of the 1,215 scenarios (5 models $\times$ 3 strategies $\times$ 81 prompts), the model generates a Python script. A format check verifies the presence of the required docstring sections (\texttt{Input Prompt}, \texttt{Intention}, \texttt{Functionality}), retrying up to 3 times if format validation fails.
+
+\subsection{Stage 2: Iterative Validation (\texttt{code\_validator.py})}
+Each generated file undergoes up to 5 iterations of the following loop:
+\begin{enumerate}
+  \item \textbf{SAST Check:} Bandit and Pylint scan the code. If issues are found, the \textbf{local generator model} is prompted to fix them.
+  \item \textbf{LLM-Judge Check:} If no SAST issues remain, the code is evaluated by **GPT-4o-mini** (independent judge).
+  \item \textbf{Resolution:} If the judge returns \texttt{"verdict": "Correct"} in its JSON response, the file is marked resolved. If the judge returns \texttt{"verdict": "Incorrect"}, its \texttt{"reason"} is forwarded to the \textbf{local generator model} to perform a functional fix, and the code goes back to SAST check.
+\end{enumerate}
+
+% ============================================
+\section{Results}
+\label{sec:results}
+
+\subsection{Quantitative Summary}
+Table~\ref{tab:main_results} presents the results across all 15 experiment combinations.
+
+\begin{table}[H]
+\centering
+\caption{Main results: 5 models $\times$ 3 strategies $\times$ 81 prompts = 1,215 scenarios.}
+\label{tab:main_results}
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+\textbf{Model} & \textbf{Strategy} & \textbf{Bandit@0 (\%)} & \textbf{Resolved (\%)} & \textbf{Unresolved (\%)} & \textbf{Avg Iter.} \\
+\midrule
+\multirow{3}{*}{Qwen 2.5 Coder 7B}
+  & Zero-shot & 63.0 & 80.2 & 19.8 & 2.31 \\
+  & Few-shot  & 54.3 & \textbf{82.7} & \textbf{17.3} & \textbf{2.38} \\
+  & CoT       & 55.6 & 77.8 & 22.2 & 2.41 \\
+\midrule
+\multirow{3}{*}{DeepSeek-Coder 6.7B}
+  & Zero-shot & 45.7 & 80.2 & 19.8 & 2.23 \\
+  & Few-shot  & 64.2 & 75.3 & 24.7 & 2.68 \\
+  & CoT       & 37.0 & 76.5 & 23.5 & 2.43 \\
+\midrule
+\multirow{3}{*}{Llama 3.1 8B}
+  & Zero-shot & 37.0 & 70.4 & 29.6 & 2.72 \\
+  & Few-shot  & 40.7 & 79.0 & 21.0 & 2.57 \\
+  & CoT       & 27.2 & 77.8 & 22.2 & 2.48 \\
+\midrule
+\multirow{3}{*}{Gemma 2 9B}
+  & Zero-shot & 34.6 & 64.2 & 35.8 & 2.99 \\
+  & Few-shot  & 40.7 & 71.6 & 28.4 & 2.58 \\
+  & CoT       & 29.6 & 55.6 & 44.4 & 3.22 \\
+\midrule
+\multirow{3}{*}{Mistral 7B}
+  & Zero-shot & 59.3 & 64.2 & 35.8 & 3.37 \\
+  & Few-shot  & 33.3 & 58.0 & 42.0 & 3.11 \\
+  & CoT       & 60.5 & 45.7 & 54.3 & 3.83 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Model-Level Averages}
+Table~\ref{tab:model_avg} aggregates performance across all strategies for each model.
+
+\begin{table}[H]
+\centering
+\caption{Model-level averages (across all 3 strategies).}
+\label{tab:model_avg}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Model} & \textbf{Avg Bandit@0 (\%)} & \textbf{Avg Resolution (\%)} & \textbf{Avg Iterations} \\
+\midrule
+Qwen 2.5 Coder 7B     & 57.6 & \textbf{80.2} & \textbf{2.37} \\
+DeepSeek-Coder 6.7B   & 49.0 & 77.3 & 2.45 \\
+Llama 3.1 8B          & 35.0 & 75.7 & 2.59 \\
+Gemma 2 9B            & 35.0 & 63.8 & 2.93 \\
+Mistral 7B            & 51.0 & 56.0 & 3.44 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Strategy-Level Averages}
+Table~\ref{tab:strategy_avg} aggregates performance across all models for each strategy.
+
+\begin{table}[H]
+\centering
+\caption{Strategy-level averages (across all 5 models).}
+\label{tab:strategy_avg}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Strategy} & \textbf{Avg Bandit@0 (\%)} & \textbf{Avg Resolution (\%)} & \textbf{Avg Iterations} \\
+\midrule
+Zero-shot        & 47.9 & 71.8 & 2.72 \\
+Few-shot         & 46.6 & \textbf{73.3} & \textbf{2.66} \\
+Chain-of-Thought & 42.0 & 66.7 & 2.87 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================
+\section{Figures}
+\label{sec:figures}
+
+The 10 generated comparative figures are saved in \texttt{analysis/figures/}:
+\begin{itemize}
+  \item \textbf{Figure 1 (Initial Vulnerabilities)}: Bandit@0 rates.
+  \item \textbf{Figure 2 (Resolution Rates)}: Final success rates.
+  \item \textbf{Figure 3 (Average Iterations)}: Model iteration efficiency.
+  \item \textbf{Figure 4 (Heatmap)}: CWE vulnerability distribution.
+\subsection{Security and Resolution success}
+Figure~\ref{fig:sec_res} shows the initial vulnerability rate (Bandit@0) and the final resolution rate side-by-side. 
+
+Qwen 2.5 Coder 7B and DeepSeek-Coder 6.7B (code-specialized) achieved the highest overall resolution rates (80.2\% and 77.3\% average), while Mistral 7B lagged at 56.0\%. Interestingly, general-purpose Llama 3.1 8B performed exceptionally well, achieving a 75.7\% average resolution success. This stands in stark contrast to mid-phase results where Llama 3.1 scored 0\% due to self-assessment bias, verifying that decoupling the generator and the judge allows Llama's secure code generation capabilities to shine.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig1_bandit_hit_rate.png}
+    \caption{Initial vulnerability rate (Bandit@0).}
+    \label{fig:bandit}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig2_resolution_rate.png}
+    \caption{Resolution success rate.}
+    \label{fig:resolution}
+  \end{subfigure}
+  \caption{Initial security and final resolution success comparison.}
+  \label{fig:sec_res}
+\end{figure}
+
+\subsection{Repair Efficiency and Iteration Distributions}
+Figure~\fig:efficiency} highlights loop efficiency. Qwen 2.5 Coder 7B is the most efficient (2.37 average iterations), whereas Mistral 7B requires 3.44. The box plot shows that code-specialized models have lower medians and narrower spreads, meaning they converge to secure, correct code in fewer attempts. Conversely, general-purpose models (especially Mistral) exhibit larger spreads and frequently hit the 5-iteration limit.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig3_avg_iterations.png}
+    \caption{Average iterations (lower is better).}
+    \label{fig:avg_iter}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig7_box_iterations.png}
+    \caption{Iteration distribution box plot.}
+    \label{fig:box_iter}
+  \end{subfigure}
+  \caption{Evaluation efficiency and iteration distribution per model.}
+  \label{fig:efficiency}
+\end{figure}
+
+\subsection{Model Specialization and Few-Shot Generalization}
+Figure~\ref{fig:spec_gen} compares code-specialized vs. general-purpose models (Qwen/DeepSeek vs. Llama/Gemma/Mistral) and seen vs. unseen CWEs under the few-shot setup.
+
+Code-specialized models achieved higher average resolutions and required fewer attempts. Importantly, Figure~\ref{fig:seen_unseen} demonstrates that few-shot secure examples did not lead to overfitting or data leakage. In fact, all models achieved equal or higher success on unseen CWE categories (e.g. Qwen 84.4\% unseen vs. 80.6\% seen; Llama 82.2\% unseen vs. 75.0\% seen). This indicates that the few-shot examples successfully taught the models the *meta-rule* of secure programming (sanitization, parameterization, and docstring formatting), which they generalized to novel contexts.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig8_code_vs_general.png}
+    \caption{Specialization comparison.}
+    \label{fig:code_vs_gen}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig9_seen_unseen_cwe.png}
+    \caption{Few-Shot Seen vs. Unseen CWEs.}
+    \label{fig:seen_unseen}
+  \end{subfigure}
+  \caption{Model specialization and few-shot generalization analysis.}
+  \label{fig:spec_gen}
+\end{figure}
+
+\subsection{Final Status and Decoupled Judge Decisions}
+Figure~\ref{fig:status_judge} shows the final resolution breakdown and the judge decisions (correct vs. incorrect verdicts) side-by-side. 
+
+The judge decisions chart tracks the total number of evaluations that went to the GPT-4o-mini API. Mistral 7B triggered the most ``Incorrect'' verdicts (meaning it repeatedly generated functionally incorrect code), leading to a high unresolved rate. Qwen 2.5 Coder and DeepSeek-Coder had high proportions of ``Correct'' verdicts, showing they fulfill docstring requirements much better.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig5_final_status.png}
+    \caption{Resolved vs. unresolved status.}
+    \label{fig:status}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig10_judge_analysis.png}
+    \caption{Judge correct vs. incorrect verdicts.}
+    \label{fig:judge_decisions}
+  \end{subfigure}
+  \caption{Final execution status and LLM-Judge verdict distribution.}
+  \label{fig:status_judge}
+\end{figure}
+
+\subsection{CWE Zafiyet Yoğunluğu ve Radar Analizi}
+Figure~\ref{fig:heatmap_radar} displays the CWE-level initial vulnerability counts and the model radar chart comparing five metrics: Resolution Success, Security Rate (100 - Bandit@0), Loop Efficiency (scaled iterations), Seen CWE success, and Unseen CWE success.
+
+The heatmap shows that CWE-78 (OS Command Injection) and CWE-502 (Deserialization) are universally hard categories, triggering Bandit findings across all models. The radar chart summarizes that Qwen 2.5 Coder 7B dominates in efficiency and resolution, while Llama 3.1 8B excels in security rate (fewest initial vulnerabilities) and unseen CWE generalization, making them the most balanced models for secure code generation.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig4_cwe_heatmap.png}
+    \caption{CWE-level vulnerability heatmap.}
+    \label{fig:heatmap}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig6_radar_per_model.png}
+    \caption{Model radar chart comparison.}
+    \label{fig:radar}
+  \end{subfigure}
+  \caption{CWE vulnerability profiles and multi-dimensional radar comparison.}
+  \label{fig:heatmap_radar}
+\end{figure}
+
+\subsection{The Chain-of-Thought Degradation Paradox}
+As shown in Table~\ref{tab:strategy_avg}, Chain-of-Thought (CoT) prompting paradoxically resulted in the lowest resolution success (66.7\% vs. 73.3\% for Few-shot). While CoT successfully reduced initial vulnerabilities (42.0\% Bandit hit rate), the added cognitive load of generating reasoning text distracted smaller local models (7B-9B), leading to syntax errors or instructions-following decay during iterative repairs. This suggests that for secure code generation in local, parameter-constrained environments, Few-shot prompting is superior to CoT.
+
+% ════════════════════════════════════════════
+\section{Threats to Validity}
+\label{sec:threats}
+\begin{itemize}
+  \item \textbf{SAST Coverage:} Bandit and Pylint only catch syntax errors and specific security signatures (e.g. hardcoded keys, debug=True). Logic flaws are left to the judge.
+  \item \textbf{Judge Calibration:} While GPT-4o-mini is independent and robust, it is still an LLM and may contain minor false positives or negatives.
+  \item \textbf{Quantization noise:} Ollama runs quantized models (typically 4-bit), which may introduce minor non-determinism compared to full-precision weights.
+\end{itemize}
+
+% ════════════════════════════════════════════
+\section{Reproducibility}
+\label{sec:reproducibility}
+
+To reproduce these results, clone the repository and run the final orchestrator:
+
+\begin{lstlisting}[language=bash, caption={Steps to reproduce the final experiments.}]
+# 1. Switch to the experiment branch
+git checkout AliSezer_Experiments
+
+# 2. Add your OpenAI API Key to .env
+echo "OPENAI_API_KEY=sk-proj-..." > .env
+
+# 3. Pull all 5 local models
+ollama pull qwen2.5-coder:7b
+ollama pull mistral:7b
+ollama pull deepseek-coder:6.7b-instruct
+ollama pull llama3.1:8b
+ollama pull gemma2:9b
+
+# 4. Run the orchestrator script (Phase 1 & 2)
+.\run_final_experiments.ps1
+
+# 5. Generate metrics and plots
+python analysis/generate_metrics.py
+python analysis/visualize.py
+\end{lstlisting}
+
+% ════════════════════════════════════════════
+\section{Conclusion}
+\label{sec:conclusion}
+Decoupling the code generator and the judge resolved the self-assessment bias observed in mid-phase experiments. Few-shot prompting with secure examples emerged as the most efficient strategy, guiding models to generalize secure patterns to unseen CWEs without data leakage. These results provide a comprehensive blueprint for secure, local, and cost-effective automated code-generation pipelines.
+
+\end{document}

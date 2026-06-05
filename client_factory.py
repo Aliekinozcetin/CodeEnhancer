@@ -14,9 +14,11 @@ load_dotenv()
 # key: projedeki kısa ad (klasör adlarıyla tutarlı)
 # value: Ollama'daki model tag'i
 MODEL_REGISTRY = {
-    "qwen25coder_7b": "qwen2.5-coder:7b",
-    "llama31_8b":     "llama3.1:8b",
-    "gemma2_9b":      "gemma2:9b",
+    "qwen25coder_7b":      "qwen2.5-coder:7b",
+    "mistral_7b":          "mistral:7b",
+    "deepseek_coder_6_7b": "deepseek-coder:6.7b-instruct",
+    "llama31_8b":          "llama3.1:8b",
+    "gemma2_9b":           "gemma2:9b",
 }
 
 # ─── Ollama Base URL ───────────────────────────────────────────────

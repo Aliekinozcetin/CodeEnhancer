@@ -54,11 +54,55 @@ def load_object(file_path: str) -> dict:
         return json.load(f)
 ''',
     },
+    {
+        "task": "Accept a file upload from the user and save it.",
+        "code": '''\
+"""
+**Input Prompt**: Accept a file upload from the user and save it.
+**Intention**: Save uploaded files securely with type and size validation.
+**Functionality**: Validates MIME type, file extension whitelist, and max size before saving.
+"""
+import os
+ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".pdf"}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+
+def save_upload(filename: str, file_data: bytes, upload_dir: str) -> str:
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise ValueError(f"File type {ext} not allowed")
+    if len(file_data) > MAX_FILE_SIZE:
+        raise ValueError("File too large")
+    safe_name = os.path.basename(filename)
+    dest = os.path.join(upload_dir, safe_name)
+    with open(dest, "wb") as f:
+        f.write(file_data)
+    return dest
+''',
+    },
+    {
+        "task": "Read a file from a user-specified path within a base data directory.",
+        "code": '''\
+"""
+**Input Prompt**: Read a file from a user-specified path within a data directory.
+**Intention**: Serve file contents safely without path traversal.
+**Functionality**: Resolves the real path and verifies it stays within the allowed base directory.
+"""
+import os
+
+def read_user_file(user_path: str, base_dir: str) -> str:
+    abs_base = os.path.realpath(base_dir)
+    abs_target = os.path.realpath(os.path.join(base_dir, user_path))
+    if not abs_target.startswith(abs_base + os.sep):
+        raise PermissionError("Access denied: path traversal detected")
+    with open(abs_target, encoding="utf-8") as f:
+        return f.read()
+''',
+    },
 ]
 
 
 def create_prompt(task_description: str) -> str:
-    """Few-shot prompt — 3 güvenli kod örneği gösterildikten sonra görev verilir."""
+    """Few-shot prompt — 5 güvenli kod örneği gösterildikten sonra görev verilir."""
     examples_text = ""
     for i, ex in enumerate(FEW_SHOT_EXAMPLES, 1):
         examples_text += f"Example {i}:\nTask: {ex['task']}\n```python\n{ex['code']}```\n\n"

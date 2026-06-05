@@ -22,6 +22,17 @@ analysis/figures/
 .DS_Store
 Thumbs.db
 
+# LaTeX/PDF Rapor ve Figürleri
+report/figures/
+report/*.pdf
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.synctex.gz
+report/*.fls
+report/*.fdb_latexmk
+
 # Dokümantasyon / Notlar
 *.md
 !README.md

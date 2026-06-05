@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 
 # Project imports
 from client_factory import get_client
+from judge_factory import get_judge_client
 
 load_dotenv()
 
@@ -69,7 +70,26 @@ def call_llm(client, model_id, prompt, retries=3):
                 model=model_id,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=2048,
-                temperature=0
+                temperature=0,
+                extra_body={"num_ctx": 8192}
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            if i == retries - 1: raise e
+            time.sleep(wait)
+            wait *= 2
+
+def call_judge(client, model_id, prompt, retries=3):
+    """GPT-4o-mini API cagrisi - JSON response."""
+    wait = 2.0
+    for i in range(retries):
+        try:
+            response = client.chat.completions.create(
+                model=model_id,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=256,
+                temperature=0,
+                response_format={"type": "json_object"}
             )
             return response.choices[0].message.content.strip()
         except Exception as e:
@@ -78,7 +98,7 @@ def call_llm(client, model_id, prompt, retries=3):
             wait *= 2
 
 # =================== Validation Logic ===================
-def validate_file(fpath: Path, client, model_id, output_dir: Path):
+def validate_file(fpath: Path, gen_client, gen_model_id, judge_client, judge_model_id, output_dir: Path):
     fname = fpath.name
     original = fpath.read_text(encoding="utf-8")
     doc, code_body = split_docstring_and_code(original)
@@ -111,7 +131,7 @@ Instructions:
 - Fix every issue. 
 - Return only the code body (no docstring) inside <Code>...</Code> tags.
 """
-            sast_resp = call_llm(client, model_id, sast_prompt)
+            sast_resp = call_llm(gen_client, gen_model_id, sast_prompt)
             code_body = extract_pure_code(sast_resp)
             
             # Save fixed attempt
@@ -120,11 +140,13 @@ Instructions:
             tmp_file.unlink(missing_ok=True)
             continue # Re-run SAST on fixed code in next iteration
 
-        # 2. Functional Check (LLM Judge)
-        func_prompt = f"""
-Compare the <Docstring> and <Code>. Does the code fulfill the intention?
-If correct, reply ONLY with 'Correct'.
-If not, provide the fixed code body inside <Code>...</Code> tags and reason inside <Reason>...</Reason>.
+        # 2. Functional Check (LLM Judge GPT-4o-mini)
+        func_prompt = f"""Compare the <Docstring> and <Code>. Does the code fulfill the intention?
+Respond ONLY with a valid JSON object matching this schema:
+- If correct:
+  {{"verdict": "Correct"}}
+- If incorrect:
+  {{"verdict": "Incorrect", "reason": "brief explanation of why the code does not fulfill the docstring intention"}}
 
 <Docstring>
 {doc}
@@ -133,15 +155,42 @@ If not, provide the fixed code body inside <Code>...</Code> tags and reason insi
 {code_body}
 </Code>
 """
-        func_resp = call_llm(client, model_id, func_prompt)
+        func_resp = call_judge(judge_client, judge_model_id, func_prompt)
         
-        if "Correct" in func_resp[:20]:
+        try:
+            verdict = json.loads(func_resp)
+        except Exception as e:
+            verdict = {}
+            if "Correct" in func_resp:
+                verdict["verdict"] = "Correct"
+            else:
+                verdict["verdict"] = "Incorrect"
+                verdict["reason"] = f"JSON parse error: {e}. Raw response: {func_resp}"
+        
+        if verdict.get("verdict") == "Correct":
             revisions.append({"attempt": att, "status": "Correct"})
             tmp_file.unlink(missing_ok=True)
             break
         else:
-            code_body = extract_pure_code(func_resp)
-            revisions.append({"attempt": att, "status": "Incorrect", "judge_feedback": func_resp})
+            reason = verdict.get("reason", "Functional issue detected by judge.")
+            fix_prompt = f"""A code reviewer found a functional issue in the code:
+<Reason>{reason}</Reason>
+
+<Code>
+{code_body}
+</Code>
+
+Fix the issue based on the reviewer's reason. Keep the logic, but make it secure and correct.
+Return ONLY the code body inside <Code>...</Code> tags. Do not include any docstring.
+"""
+            fix_resp = call_llm(gen_client, gen_model_id, fix_prompt)
+            code_body = extract_pure_code(fix_resp)
+            revisions.append({
+                "attempt": att,
+                "status": "Incorrect",
+                "reason": reason,
+                "judge_raw_response": func_resp
+            })
             tmp_file.unlink(missing_ok=True)
 
     # Save final results for this file
@@ -162,17 +211,20 @@ def main():
     code_dir = exp_folder / "code"
     
     if not code_dir.exists():
-        print(f"❌ Error: {code_dir} not found. Run generator first.")
+        print(f"[ERROR] {code_dir} not found. Run generator first.")
         return
 
-    print(f"\n🔍 Validating Experiment: {args.model}_{args.strategy}")
-    client, model_id = get_client(args.model)
+    print(f"\n[STARTING] Validating Experiment: {args.model}_{args.strategy}")
+    gen_client, gen_model_id = get_client(args.model)
+    judge_client, judge_model_id = get_judge_client()
     
     python_files = list(code_dir.glob("*.py"))
     for f in tqdm(python_files, desc="Validating Files"):
-        validate_file(f, client, model_id, exp_folder)
+        if (exp_folder / f"{f.name[:-3]}_log.json").exists():
+            continue
+        validate_file(f, gen_client, gen_model_id, judge_client, judge_model_id, exp_folder)
 
-    print(f"✅ Validation complete. Results in: {exp_folder}")
+    print(f"[FINISHED] Validation complete. Results in: {exp_folder}")
 
 if __name__ == "__main__":
     main()

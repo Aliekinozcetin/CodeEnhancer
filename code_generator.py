@@ -17,7 +17,7 @@ load_dotenv()
 
 # ------------------ Configuration ------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_DATASET = os.path.join(BASE_DIR, "data", "mid_phase_prompts.json")
+DEFAULT_DATASET = os.path.join(BASE_DIR, "data", "final_prompts.json")
 
 # Strategy mapping
 STRATEGIES = {
@@ -90,6 +90,7 @@ def process_prompt(client, model_id, strategy_module, prompt, prompt_id, output_
                 messages=messages,
                 max_tokens=2048,
                 temperature=0,
+                extra_body={"num_ctx": 8192},
             )
             assistant_reply = response.choices[0].message.content.strip()
         except Exception as e:
@@ -130,14 +131,14 @@ def run_experiment(model_key, strategy_name, dataset_path, limit=None, workers=1
     model_folder = os.path.join(BASE_DIR, "experiments", f"{model_key}_{strategy_name}")
     os.makedirs(model_folder, exist_ok=True)
     
-    print(f"\n🚀 Experiment Starting: {model_key} | {strategy_name}")
-    print(f"📁 Folder: {model_folder}")
+    print(f"\n[STARTING] Experiment: {model_key} | {strategy_name}")
+    print(f"Folder: {model_folder}")
 
     # Initialize client
     try:
         client, model_id = get_client(model_key)
     except Exception as e:
-        print(f"❌ Initialization Error: {e}")
+        print(f"[ERROR] Initialization Error: {e}")
         return
 
     # Load dataset
@@ -172,7 +173,7 @@ def run_experiment(model_key, strategy_name, dataset_path, limit=None, workers=1
         json.dump(results, f, indent=2)
     
     success_count = sum(1 for r in results if r["status"] == "success")
-    print(f"✅ Finished! Success: {success_count}/{len(data)}")
+    print(f"[FINISHED] Success: {success_count}/{len(data)}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CodeEnhancer - Code Generator (Ollama)")
