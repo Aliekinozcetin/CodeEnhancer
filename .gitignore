@@ -1,4 +1,4 @@
-# Ortam değişkenleri — asla commit etme
+# Environment variables 
 .env
 
 # Python
@@ -11,10 +11,10 @@ build/
 venv/
 env/
 
-# Deney Çıktıları — Repoyu şişirmemesi için ignore ediliyor
+# Experiment Outputs 
 experiments/
 
-# Analiz Çıktıları — Her koşuda otomatik üretildiği için ignore ediliyor
+# Analysis Outputs 
 analysis/metrics.csv
 analysis/comparison_report.json
 analysis/figures/
@@ -22,7 +22,7 @@ analysis/figures/
 .DS_Store
 Thumbs.db
 
-# LaTeX/PDF Rapor ve Figürleri
+# LaTeX/PDF Reports and Figures
 report/figures/
 report/*.pdf
 report/*.aux
@@ -33,6 +33,6 @@ report/*.synctex.gz
 report/*.fls
 report/*.fdb_latexmk
 
-# Dokümantasyon / Notlar
+# Documentation / Notes
 *.md
 !README.md
