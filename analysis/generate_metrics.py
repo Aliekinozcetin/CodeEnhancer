@@ -10,7 +10,7 @@ EXPERIMENTS_DIR = BASE_DIR / "experiments"
 OUTPUT_PATH = Path(__file__).parent / "comparison_report.json"
 CSV_PATH = Path(__file__).parent / "metrics.csv"
 
-# Bizim kullandigimiz 5 model
+# Our 5 models
 MODELS     = ["qwen25coder_7b", "mistral_7b", "deepseek_coder_6_7b", "llama31_8b", "gemma2_9b"]
 STRATEGIES = ["zero_shot", "few_shot", "chain_of_thought"]
 
@@ -28,7 +28,7 @@ STRATEGY_LABELS = {
     "chain_of_thought": "Chain-of-Thought",
 }
 
-# Few-shot icin "seen" (ornek olarak promptlarda gosterilen) CWE'ler
+# CWEs "seen" in few-shot examples
 SEEN_CWES = {"CWE-78", "CWE-89", "CWE-502", "CWE-434", "CWE-22"}
 
 def load_validation_results(model_key: str, strategy: str) -> list | None:
@@ -97,9 +97,9 @@ def compute_metrics(file_results: list) -> dict:
 
 def print_summary_table(report: dict):
     print("\n" + "=" * 115)
-    print("ÖZET: Güvenlik ve Doğruluk Analizi (Final Deneyleri)")
+    print("SUMMARY: Security and Correctness Analysis (Final Experiments)")
     print("=" * 115)
-    header = f"{'Model':<22} {'Strateji':<18} {'Bandit@0':>9} {'Basari':>8} {'Hata':>12} {'Ort.Iter':>9} {'Seen CWE':>10} {'Unseen CWE':>12}"
+    header = f"{'Model':<22} {'Strategy':<18} {'Bandit@0':>9} {'Success':>8} {'Failure':>12} {'Avg.Iter':>9} {'Seen CWE':>10} {'Unseen CWE':>12}"
     print(header)
     print("-" * 115)
     for key in sorted(report.keys()):
@@ -121,7 +121,7 @@ if __name__ == "__main__":
                 }
 
     if not report:
-        print("Sonuç bulunamadı (experiments dizinini kontrol edin).")
+        print("No results found (check experiments directory).")
         sys.exit(0)
 
     print_summary_table(report)
@@ -145,4 +145,4 @@ if __name__ == "__main__":
                 f"{v['metrics']['unseen_resolution_rate']}%"
             ])
 
-    print(f"\nRaporlar kaydedildi: {OUTPUT_PATH} ve {CSV_PATH}")
+    print(f"\nReports saved: {OUTPUT_PATH} and {CSV_PATH}")

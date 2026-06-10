@@ -80,7 +80,7 @@ def call_llm(client, model_id, prompt, retries=3):
             wait *= 2
 
 def call_judge(client, model_id, prompt, retries=3):
-    """GPT-4o-mini API cagrisi - JSON response."""
+    """GPT-4o-mini API call - JSON response."""
     wait = 2.0
     for i in range(retries):
         try:

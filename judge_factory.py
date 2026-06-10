@@ -1,5 +1,5 @@
 # judge_factory.py — OpenAI client factory for LLM Judge (GPT-4o-mini)
-# Tek sorumluluk: OpenAI API key ile baglanip (client, model_id) donmek.
+# Single responsibility: Connect with OpenAI API key and return (client, model_id).
 
 import os
 from openai import OpenAI
@@ -9,19 +9,19 @@ load_dotenv()
 
 def get_judge_client():
     """
-    GPT-4o-mini judge client ve model adini doner.
+    Returns the GPT-4o-mini judge client and model ID.
     
     Returns:
         tuple: (OpenAI client instance, model_id string)
         
     Raises:
-        ValueError: OpenAI API anahtari bulunamadiginda.
+        ValueError: When the OpenAI API key is not found.
     """
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise ValueError(
-            "OPENAI_API_KEY .env dosyasinda veya ortam degiskenlerinde bulunamadi. "
-            "Lutfen API anahtarinizi ekleyin."
+            "OPENAI_API_KEY was not found in the .env file or environment variables. "
+            "Please add your API key."
         )
     
     client = OpenAI(api_key=api_key)

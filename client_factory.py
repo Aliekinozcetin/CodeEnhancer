@@ -1,7 +1,7 @@
 # client_factory.py — Ollama OpenAI-compat client wrapper
-# Tek sorumluluk: model key verilince (client, model_id) tuple döner.
-# Tüm Ollama bağlantı detayları bu dosyada izole edilir.
-# Diğer scriptler sadece get_client("qwen25coder_7b") çağırır.
+# Single responsibility: Returns (client, model_id) tuple when model key is provided.
+# All Ollama connection details are isolated in this file.
+# Other scripts only call get_client("qwen25coder_7b").
 
 import sys
 from openai import OpenAI
@@ -11,8 +11,8 @@ import os
 load_dotenv()
 
 # ─── Model Registry ───────────────────────────────────────────────
-# key: projedeki kısa ad (klasör adlarıyla tutarlı)
-# value: Ollama'daki model tag'i
+# key: short name in the project (consistent with folder names)
+# value: model tag in Ollama
 MODEL_REGISTRY = {
     "qwen25coder_7b":      "qwen2.5-coder:7b",
     "mistral_7b":          "mistral:7b",
@@ -27,29 +27,29 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 
 def get_client(model_key: str):
     """
-    Model key'e göre OpenAI-compat client ve Ollama model adını döner.
+    Returns the OpenAI-compat client and Ollama model ID based on the model key.
 
     Args:
-        model_key: MODEL_REGISTRY'deki kısa ad.
-                   Örnek: "qwen25coder_7b", "llama31_8b", "gemma2_9b"
+        model_key: Short name in MODEL_REGISTRY.
+                   Example: "qwen25coder_7b", "llama31_8b", "gemma2_9b"
 
     Returns:
         tuple: (OpenAI client, model_id string)
 
     Raises:
-        ValueError: Bilinmeyen model key.
+        ValueError: Unknown model key.
     """
     if model_key not in MODEL_REGISTRY:
         raise ValueError(
-            f"Bilinmeyen model: '{model_key}'. "
-            f"Geçerli modeller: {list(MODEL_REGISTRY.keys())}"
+            f"Unknown model: '{model_key}'. "
+            f"Valid models: {list(MODEL_REGISTRY.keys())}"
         )
 
     model_id = MODEL_REGISTRY[model_key]
 
     client = OpenAI(
         base_url=OLLAMA_BASE_URL,
-        api_key="ollama",  # Ollama API key gerektirmez, placeholder
+        api_key="ollama",  # Ollama does not require an API key, placeholder
     )
 
     return client, model_id
@@ -57,15 +57,14 @@ def get_client(model_key: str):
 
 def test_connection(model_key: str) -> bool:
     """
-    Ollama'ya basit bir prompt göndererek bağlantıyı ve modelin
-    erişilebilirliğini test eder.
+    Tests the connection and model accessibility by sending a simple prompt to Ollama.
 
     Args:
-        model_key: Test edilecek model.
+        model_key: Model to be tested.
 
     Returns:
-        True: Bağlantı başarılı ve model yanıt döndü.
-        False: Bağlantı veya model erişim hatası.
+        True: Connection successful and model returned response.
+        False: Connection or model access error.
     """
     try:
         client, model_id = get_client(model_key)
@@ -83,15 +82,15 @@ def test_connection(model_key: str) -> bool:
 
 
 def list_available_models():
-    """Kayıtlı tüm modelleri ve erişilebilirlik durumlarını listeler."""
+    """Lists all registered models and their accessibility status."""
     print(f"Ollama endpoint: {OLLAMA_BASE_URL}")
-    print(f"{'Model Key':<20} {'Ollama Tag':<22} {'Durum'}")
+    print(f"{'Model Key':<20} {'Ollama Tag':<22} {'Status'}")
     print("-" * 55)
     for key, tag in MODEL_REGISTRY.items():
-        status = "[OK] Erisilebilir" if test_connection(key) else "[FAIL] Erisilemiyor"
+        status = "[OK] Accessible" if test_connection(key) else "[FAIL] Inaccessible"
         print(f"{key:<20} {tag:<22} {status}")
 
 
-# ─── CLI: Doğrudan çalıştırılırsa tüm modelleri test eder ─────────
+# ─── CLI: Tests all models if run directly ─────────
 if __name__ == "__main__":
     list_available_models()

@@ -1,9 +1,9 @@
 # Experiment: All models × zero-shot strategy
-# Orijinal CodeEnhancer system prompt'unun birebir karşılığı.
+# Direct equivalent of the original CodeEnhancer system prompt.
 
 
 def create_prompt(task_description: str) -> str:
-    """Zero-shot prompt — görev açıklaması dışında hiçbir örnek veya yönlendirme yok."""
+    """Zero-shot prompt — contains no examples or guidance other than the task description."""
     return (
         "Please write Python code for the following task. "
         "At the very top, add a triple-quoted docstring with these three sections, each starting on its own line:\n"

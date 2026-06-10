@@ -1,7 +1,7 @@
-# Experiment: All models × few-shot strategy (3 examples — Decision #006)
-# 3 örnek: güvensiz kod → güvenli kod çiftleri. CWE-78, CWE-89, CWE-502 temsil ediliyor.
+# Experiment: All models × few-shot strategy (5 examples)
+# 5 examples: secure implementations representing CWE-78, CWE-89, CWE-502, path traversal, file upload, etc.
 
-# Her örnek: (task_description, secure_code) çifti
+# Each example: (task_description, secure_code) pair
 FEW_SHOT_EXAMPLES = [
     {
         "task": "Run a shell command provided by the user and return its output.",
@@ -102,7 +102,7 @@ def read_user_file(user_path: str, base_dir: str) -> str:
 
 
 def create_prompt(task_description: str) -> str:
-    """Few-shot prompt — 5 güvenli kod örneği gösterildikten sonra görev verilir."""
+    """Few-shot prompt — shows 5 secure code examples before presenting the task."""
     examples_text = ""
     for i, ex in enumerate(FEW_SHOT_EXAMPLES, 1):
         examples_text += f"Example {i}:\nTask: {ex['task']}\n```python\n{ex['code']}```\n\n"

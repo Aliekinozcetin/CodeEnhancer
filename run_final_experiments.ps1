@@ -1,9 +1,9 @@
 # run_final_experiments.ps1 - CodeEnhancer Final Phase Automation Script
-# Kapsam: 5 Model x 3 Strateji x 81 Prompt = 1,215 Senaryo
-# Checkpoint & Resume destekli, laptop kesintilerine dayanikli.
+# Scope: 5 Models x 3 Strategies x 81 Prompts = 1,215 Scenarios
+# Checkpoint & Resume supported, resilient to interruptions.
 
 param (
-    [int]$Phase = 0 # 0: Tum fazlar, 1: Sadece Kod Uretimi, 2: Sadece Validasyon
+    [int]$Phase = 0 # 0: All phases, 1: Code Generation only, 2: Validation only
 )
 
 $models = @("qwen25coder_7b", "mistral_7b", "deepseek_coder_6_7b", "llama31_8b", "gemma2_9b")
@@ -21,7 +21,7 @@ if ($Phase -eq 1) {
     Write-Host "Mode: Full Pipeline (Phase 1 + Phase 2)" -ForegroundColor Yellow
 }
 
-# ------------------ Faz 1: Kod Uretimi (Generation) ------------------
+# ------------------ Phase 1: Code Generation ------------------
 if ($Phase -eq 0 -or $Phase -eq 1) {
     Write-Host "`n=== PHASE 1: CODE GENERATION STARTING ===" -ForegroundColor Blue
     
@@ -30,7 +30,7 @@ if ($Phase -eq 0 -or $Phase -eq 1) {
             $exp_dir = "experiments/$($model)_$($strategy)"
             $gen_marker = "$exp_dir/GENERATION_COMPLETE"
             
-            # Checkpoint kontrolu
+            # Checkpoint control
             if (Test-Path -Path $gen_marker) {
                 Write-Host "[SKIP] $model - $strategy is already generated." -ForegroundColor Gray
                 continue
@@ -53,7 +53,7 @@ if ($Phase -eq 0 -or $Phase -eq 1) {
     }
 }
 
-# ------------------ Faz 2: Iteratif Validasyon (SAST + Judge) ------------------
+# ------------------ Phase 2: Iterative Validation (SAST + Judge) ------------------
 if ($Phase -eq 0 -or $Phase -eq 2) {
     Write-Host "`n=== PHASE 2: ITERATIVE VALIDATION STARTING ===" -ForegroundColor Blue
     
@@ -62,13 +62,13 @@ if ($Phase -eq 0 -or $Phase -eq 2) {
             $exp_dir = "experiments/$($model)_$($strategy)"
             $val_marker = "$exp_dir/VALIDATION_COMPLETE"
             
-            # Checkpoint kontrolu
+            # Checkpoint control
             if (Test-Path -Path $val_marker) {
                 Write-Host "[SKIP] $model - $strategy validation is already done." -ForegroundColor Gray
                 continue
             }
             
-            # Validasyona baslamak icin uretimin bitmis olmasi gerekir
+            # Generation must be completed before starting validation
             if (!(Test-Path -Path "$exp_dir/code")) {
                 Write-Host "[WARNING] Code directory not found for $model - $strategy. Run Phase 1 first." -ForegroundColor Yellow
                 continue

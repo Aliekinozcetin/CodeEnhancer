@@ -1,9 +1,9 @@
 # Experiment: All models × chain-of-thought strategy
-# Model önce güvenlik risklerini adım adım analiz eder, sonra güvenli kodu yazar.
+# The model first analyzes security risks step-by-step, then writes the secure code.
 
 
 def create_prompt(task_description: str) -> str:
-    """Chain-of-thought prompt — güvenlik analizi adımları, ardından kod üretimi."""
+    """Chain-of-thought prompt — security analysis steps followed by code generation."""
     return (
         "You are a security-aware code generation assistant. "
         "Before writing any code, reason step by step about potential security risks.\n\n"

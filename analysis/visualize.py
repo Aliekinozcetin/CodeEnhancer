@@ -29,7 +29,7 @@ COLORS     = {"zero_shot": "#4C72B0", "few_shot": "#DD8452", "chain_of_thought":
 
 def load_report() -> dict:
     if not REPORT_PATH.exists():
-        print(f"[ERR] {REPORT_PATH} bulunamadi. Önce generate_metrics.py calistir.")
+        print(f"[ERR] {REPORT_PATH} not found. Run generate_metrics.py first.")
         sys.exit(1)
     with open(REPORT_PATH, encoding="utf-8") as f:
         return json.load(f)
@@ -313,7 +313,7 @@ def plot_judge_analysis():
 if __name__ == "__main__":
     report = load_report()
     df = to_dataframe(report)
-    print("Grafikler çiziliyor (10 adet)...")
+    print("Generating graphs (10 figures)...")
     plot_bandit_hit_rate(df)
     plot_resolution_rate(df)
     plot_avg_iterations(df)
@@ -324,4 +324,4 @@ if __name__ == "__main__":
     plot_code_vs_general(df)
     plot_seen_unseen_cwe(df)
     plot_judge_analysis()
-    print(f"Grafikler başarıyla kaydedildi -> {FIGURES_DIR}")
+    print(f"Graphs successfully saved -> {FIGURES_DIR}")
