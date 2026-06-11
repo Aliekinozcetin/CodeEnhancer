@@ -48,9 +48,9 @@
     \begin{column}{0.55\textwidth}
       \begin{block}{LLMs Write Vulnerable Code}
         \begin{itemize}
-          \item GitHub Copilot: \textbf{$\sim$40\%} of generated programs contain vulnerabilities
+          \item GitHub Copilot: \textbf{$\sim$40\%} of generated programs contain vulnerabilities (Pearce et al., 2022)
           \item Common weaknesses: SQL injection, command injection, path traversal
-          \item Developers using AI assistants write \textbf{less secure code}
+          \item Developers using AI assistants write \textbf{less secure code} and are less likely to notice it
         \end{itemize}
       \end{block}
       \vspace{0.4em}
@@ -222,13 +222,13 @@
         \toprule
         \textbf{Model} & \textbf{Self} & \textbf{Ext.} \\
         \midrule
-        Llama 3.1 & 0\% & \textbf{75.7\%} \\
+        Llama 3.1 & 15.6\% & \textbf{75.7\%} \\
         \bottomrule
       \end{tabular}
       \vspace{0.8em}
 
       \textbf{The Fix:} We used \textbf{GPT-4o-mini} as a separate, independent checker. It evaluates code without any bias toward the model that wrote it.
-      \vspace{0.5em}
+      \vspace{0.5em} 
 
       \textbf{Mistral 7B} received the most failed checks --- it kept generating incomplete code even after passing the security scan.
     \end{column}

@@ -101,7 +101,7 @@ The CodeEnhancer framework~\cite{lee2026codeenhancer} formalized this approach i
 
 A critical limitation in prior iterative repair systems is the use of the same LLM as both generator and judge. Olausson et al.~\cite{olausson2024selfrepair} demonstrated in a rigorous ICLR 2024 study that self-repair gains are marginal and inconsistent for code generation: when accounting for the cost of repair attempts, performance improvements are modest and sometimes absent, because models are fundamentally limited in their ability to produce accurate feedback about their own outputs. Huang et al.~\cite{huang2023large} further documented that large language models cannot reliably self-correct their reasoning without external feedback. Kamoi et al.~\cite{kamoi2024when} provided a critical survey of LLM self-correction, concluding that reliable self-correction only occurs when expert feedback---not autonomous introspection---is provided.
 
-This motivates our design choice to decouple the judge from the generator, using GPT-4o-mini as an independent external evaluator. Our mid-phase results validate this decision empirically: Llama 3.1 8B achieved 0\% resolution when judging its own outputs, but recovered to 75.7\% average resolution after the judge was decoupled.
+This motivates our design choice to decouple the judge from the generator, using GPT-4o-mini as an independent external evaluator. Our mid-phase results validate this decision empirically: under the self-assessment framework (Self-Judge), Llama 3.1 8B achieved a low 15.6\% resolution rate, and DeepSeek-Coder 6.7B scored only 20.0\%. After decoupling the judge by using GPT-4o-mini, Llama 3.1's average resolution rate recovered to 75.7\% and DeepSeek-Coder rose to 77.3\%. The severe degradation in the mid-phase was primarily driven by self-judge loop divergence, though the small sample size of the mid-phase (15 prompts) also introduced high statistical variance due to the heavy weighting of complex CWE categories.
 
 \subsection{Evaluation Benchmarks}
 
@@ -261,7 +261,7 @@ Chain-of-Thought & 42.0 & 66.7 & 2.87 \\
 
 \subsubsection{Code-Specialized vs.\ General-Purpose Models}
 
-Figure~\ref{fig:sec_res} shows the initial vulnerability rate (Bandit@0) and the final resolution rate side-by-side. Qwen 2.5 Coder 7B and DeepSeek-Coder 6.7B (code-specialized) achieved the highest overall resolution rates (80.2\% and 77.3\% average), while Mistral 7B lagged significantly at 56.0\%. The code-specialized models showed both higher initial resolution capability and faster convergence (lower average iterations). Notably, Llama 3.1 8B (general-purpose) performed surprisingly well at 75.7\% average resolution---a result that validates the utility of the decoupled judge, since Llama achieved 0\% resolution in mid-phase experiments when it served as its own judge.
+Figure~\ref{fig:sec_res} shows the initial vulnerability rate (Bandit@0) and the final resolution rate side-by-side. Qwen 2.5 Coder 7B and DeepSeek-Coder 6.7B (code-specialized) achieved the highest overall resolution rates (80.2\% and 77.3\% average), while Mistral 7B lagged significantly at 56.0\%. The code-specialized models showed both higher initial resolution capability and faster convergence (lower average iterations). Notably, Llama 3.1 8B (general-purpose) performed surprisingly well at 75.7\% average resolution, and DeepSeek-Coder 6.7B reached 77.3\%. These results validate the utility of the decoupled judge, as Llama 3.1 and DeepSeek-Coder achieved only 15.6\% and 20.0\% resolution rates, respectively, in the self-assessment mid-phase experiments. This low baseline was caused by self-judge loop divergence, combined with the high statistical variance of the smaller 15-prompt dataset where complex, hard-to-resolve CWEs (e.g., CWE-78, CWE-502) comprised a larger portion of the evaluation set.
 
 \begin{figure}[H]
   \centering
@@ -330,7 +330,7 @@ A key concern with few-shot prompting is data leakage: if the five examples cove
 
 \subsubsection{The Chain-of-Thought Degradation Paradox}
 
-Table~\ref{tab:strategy_avg} shows that Chain-of-Thought prompting yielded the lowest average resolution (66.7\%) despite producing the lowest initial vulnerability rate (42.0\% Bandit@0). This apparent paradox is explained by the interaction between CoT's verbose reasoning output and the iterative repair loop: for 7B--9B parameter models, generating multi-step reasoning text exhausts a significant portion of the available context window, leaving less capacity for code generation in subsequent repair iterations. This leads to instruction-following decay---models that successfully reason about vulnerabilities in the initial generation struggle to apply the same reasoning during repair, producing syntax errors or incomplete fixes. This finding is consistent with Wei et al.'s~\cite{wei2022cot} observation that CoT benefits are most pronounced in large models ($\geq$100B parameters).
+Table~\ref{tab:strategy_avg} shows that Chain-of-Thought prompting yielded the lowest average resolution (66.7\%) despite producing the lowest initial vulnerability rate (42.0\% Bandit@0). This apparent paradox is explained by the interaction between CoT's verbose reasoning output and the iterative repair loop: for 7B--9B parameter models, generating multi-step reasoning text exhausts a significant portion of the available context window, leaving less capacity for code generation in subsequent repair iterations. This leads to instruction-following decay---models that successfully reason about vulnerabilities in the initial generation struggle to apply the same reasoning during repair, producing syntax errors or incomplete fixes. Empirically, we identified 9 scenarios in our CoT runs that ended in \texttt{SyntaxError} due to context or token limit truncation. For instance, under Mistral 7B's CoT run for CWE-22 (ILP-3b), the model entered a repetitive loop listing file extensions until it hit the 2048 output limit, leaving the code unclosed and leading to a syntax error. Similarly, Llama 3.1 8B's CoT run for CWE-798 (UHC-1a) was truncated mid-generation, leaving an unterminated string literal. This finding is consistent with Wei et al.'s~\cite{wei2022cot} observation that CoT benefits are most pronounced in large models ($\geq$100B parameters).
 
 \subsubsection{CWE-Level Vulnerability Analysis}
 
@@ -378,6 +378,43 @@ Figure~\ref{fig:status_judge} shows the final resolution breakdown alongside the
   \label{fig:status_judge}
 \end{figure}
 
+\subsubsection{Qualitative Case Studies}
+
+To provide empirical evidence for the quantitative findings, we analyze two representative case studies from the experiments: (1) Chain-of-Thought context window truncation, and (2) decoupled judge repair loop execution.
+
+\paragraph{Case 1: Chain-of-Thought Truncation.}
+For models in the 7B--9B parameter range, generating verbose security reasoning before writing code frequently exhausts the context window or output token budget. Listing~\ref{lst:cot_trunc} shows an example from a Mistral 7B CoT run targeting CWE-22 (Path Traversal). The model entered a repetitive token loop listing forbidden file extensions and was cut off mid-token at the 2048 output limit, causing an invalid Python syntax error.
+
+\begin{lstlisting}[caption={CoT truncation case in Mistral 7B (CWE-22).}, label={lst:cot_trunc}]
+# Mistral 7B got trapped in a repetitive token loop and was abruptly truncated
+if file.endswith(('.exe', '.bat', '.com', '.scr', '.vbs', '.js', 
+                 '.jar', '.class', '.dll', '.msi', '.msp', 
+                 # ... [truncated mid-token due to context/output limit]
+\end{lstlisting}
+
+\paragraph{Case 2: Decoupled Judge Repair Loop.}
+Llama 3.1 8B initially suffered from a low 15.6\% resolution rate due to self-assessment loop divergence (pedantic bias) in the self-judge mid-phase. Decoupling the judge using GPT-4o-mini resolved this issue, lifting the resolution rate to 75.7\%. Listing~\ref{lst:llama_insecure} and Listing~\ref{lst:llama_secure} demonstrate a successful repair trajectory for CWE-200 (Exposure of Sensitive Information) in a login script. In the initial attempt, Llama 3.1 8B compared passwords in plain text. The independent judge rejected the code, prompting Llama 3.1 to refactor it in the next iteration using secure hashing.
+
+\begin{lstlisting}[caption={Llama 3.1 8B insecure plaintext comparison (Attempt 2).}, label={lst:llama_insecure}]
+def login_user(username: str, password: str, db_path: str) -> str:
+    # ...
+    stored_password = cursor.fetchone()[0]
+    # INSECURE: Plain text password comparison
+    if stored_password == password:
+        return redirect(url_for('dashboard'))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Llama 3.1 8B secure hashed password comparison (Attempt 3).}, label={lst:llama_secure}]
+import hashlib  # Added by Llama 3.1 in Attempt 3 after judge feedback
+def login_user(username: str, password: str, db_path: str) -> str:
+    # ...
+    stored_password = cursor.fetchone()[0]
+    # SECURE: Comparing inputs using SHA-256 hashes
+    input_password_hash = hashlib.sha256(password.encode()).hexdigest()
+    if input_password_hash == stored_password:
+        return redirect(url_for('dashboard'))
+\end{lstlisting}
+
 \subsection{Threats to Validity}
 
 \textbf{SAST Coverage.} Bandit and Pylint only detect specific vulnerability patterns and syntax issues. Logic flaws and semantic vulnerabilities that do not match known patterns will not be caught by SAST, and are left to the judge. Using a broader set of SAST tools (e.g., CodeQL~\cite{github2023codeql}) could improve coverage.
@@ -395,7 +432,7 @@ Figure~\ref{fig:status_judge} shows the final resolution breakdown alongside the
 This paper presented a systematic comparative study of five open-source LLMs across three prompt engineering strategies for secure Python code generation, built on the CodeEnhancer framework. Our key findings are:
 
 \begin{enumerate}
-  \item \textbf{Decoupling the judge resolves self-assessment bias.} Llama 3.1 8B went from 0\% resolution under self-assessment to 75.7\% average resolution with an independent judge, validating the architectural importance of separating generator and evaluator roles~\cite{olausson2024selfrepair}.
+  \item \textbf{Decoupling the judge resolves self-assessment bias.} Llama 3.1 8B went from a 15.6\% resolution rate under self-assessment to 75.7\% average resolution with an independent judge (and DeepSeek-Coder rose from 20.0\% to 77.3\%), validating the architectural importance of separating generator and evaluator roles~\cite{olausson2024selfrepair}.
   \item \textbf{Code-specialized models outperform general-purpose models.} Qwen 2.5 Coder 7B (80.2\%) and DeepSeek-Coder 6.7B (77.3\%) dominate the resolution ranking, requiring fewer repair iterations.
   \item \textbf{Few-shot prompting is the most effective strategy.} At 73.3\% average resolution with 2.66 average iterations, few-shot outperforms zero-shot (71.8\%, 2.72 iter.) and CoT (66.7\%, 2.87 iter.).
   \item \textbf{Few-shot examples generalize without data leakage.} All models achieved equal or higher resolution on unseen CWEs compared to seen CWEs under few-shot setup.
